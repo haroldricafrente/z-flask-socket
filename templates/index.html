@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="title">Dashboard</h1>
+<ul class="breadcrumbs">
+    <li><a href="#">Home</a></li>
+    <li class="divider">/</li>
+    <li><a href="#" class="active">Dashboard</a></li>
+</ul>
+
+<div class="data">
+    <div class="content-data">
+        <div class="head">
+            <h3>Chestnut</h3>
+            <div class="menu">
+                <i class='bx bx-dots-horizontal-rounded icon'></i>
+                <ul class="menu-link">
+                    <li><a href="#">Edit</a></li>
+                    <li><a href="#">Save</a></li>
+                    <li><a href="#">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/chestnut.png') }}" alt="chestnut" class="mushroom-image">
+        </div>
+        <div class="parameter">
+            <div><i class='bx bxs-thermometer icon' ></i><span id="temperature-chestnut">N/A</span></div>
+            <div><i class='bx bxs-droplet icon' ></i><span id="humidity-chestnut">N/A</span></div>
+            <div><i class='bx bx-wind icon'></i><span id="carbonDioxide-chestnut">N/A</span></div>
+            <div><i class='bx bx-water icon' ></i><span id="soilMoisture-chestnut">N/A</span></div>
+            <div><i class='bx bxs-bulb icon' ></i><span id="lightIntensity-chestnut">N/A</span></div>
+        </div>
+        <a class="card-link" href="{{ url_for('chestnut') }}"></a>
+    </div>
+
+    <div class="content-data">
+        <div class="head">
+            <h3>Milky Mushroom</h3>
+            <div class="menu">
+                <i class='bx bx-dots-horizontal-rounded icon'></i>
+                <ul class="menu-link">
+                    <li><a href="#">Edit</a></li>
+                    <li><a href="#">Save</a></li>
+                    <li><a href="#">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/milky-mushroom.png') }}" alt="milky mushroom" class="mushroom-image">
+        </div>
+        <div class="parameter">
+            <div><i class='bx bxs-thermometer icon' ></i><span id="temperature-milky_mushroom">N/A</span></div>
+            <div><i class='bx bxs-droplet icon' ></i><span id="humidity-milky_mushroom">N/A</span></div>
+            <div><i class='bx bx-wind icon'></i><span id="carbonDioxide-milky_mushroom">N/A</span></div>
+            <div><i class='bx bx-water icon' ></i><span id="soilMoisture-milky_mushroom">N/A</span></div>
+            <div><i class='bx bxs-bulb icon' ></i><span id="lightIntensity-milky_mushroom">N/A</span></div>
+        </div>
+        <a class="card-link" href="{{ url_for('milky_mushroom') }}"></a>
+    </div>
+
+    <div class="content-data">
+        <div class="head">
+            <h3>Reishi</h3>
+            <div class="menu">
+                <i class='bx bx-dots-horizontal-rounded icon'></i>
+                <ul class="menu-link">
+                    <li><a href="#">Edit</a></li>
+                    <li><a href="#">Save</a></li>
+                    <li><a href="#">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/reishi.png') }}" alt="reishi" class="mushroom-image">
+        </div>
+        <div class="parameter">
+            <div><i class='bx bxs-thermometer icon' ></i><span id="temperature-reishi">N/A</span></div>
+            <div><i class='bx bxs-droplet icon' ></i><span id="humidity-reishi">N/A</span></div>
+            <div><i class='bx bx-wind icon'></i><span id="carbonDioxide-reishi">N/A</span></div>
+            <div><i class='bx bx-water icon' ></i><span id="soilMoisture-reishi">N/A</span></div>
+            <div><i class='bx bxs-bulb icon' ></i><span id="lightIntensity-reishi">N/A</span></div>
+        </div>
+        <a class="card-link" href="{{ url_for('reishi') }}"></a>
+    </div>
+
+    <div class="content-data">
+        <div class="head">
+            <h3>Shiitake</h3>
+            <div class="menu">
+                <i class='bx bx-dots-horizontal-rounded icon'></i>
+                <ul class="menu-link">
+                    <li><a href="#">Edit</a></li>
+                    <li><a href="#">Save</a></li>
+                    <li><a href="#">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/shiitake.png') }}" alt="shiitake" class="mushroom-image">
+        </div>
+        <div class="parameter">
+            <div><i class='bx bxs-thermometer icon' ></i><span id="temperature-shiitake">N/A</span></div>
+            <div><i class='bx bxs-droplet icon' ></i><span id="humidity-shiitake">N/A</span></div>
+            <div><i class='bx bx-wind icon'></i><span id="carbonDioxide-shiitake">N/A</span></div>
+            <div><i class='bx bx-water icon' ></i><span id="soilMoisture-shiitake">N/A</span></div>
+            <div><i class='bx bxs-bulb icon' ></i><span id="lightIntensity-shiitake">N/A</span></div>
+        </div>
+        <a class="card-link" href="{{ url_for('shiitake') }}"></a>
+    </div>
+
+    <div class="content-data">
+        <div class="head">
+            <h3>White Oyster</h3>
+            <div class="menu">
+                <i class='bx bx-dots-horizontal-rounded icon'></i>
+                <ul class="menu-link">
+                    <li><a href="#">Edit</a></li>
+                    <li><a href="#">Save</a></li>
+                    <li><a href="#">Remove</a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/white-oyster.png') }}" alt="white oyster" class="mushroom-image">
+        </div>
+        <div class="parameter">
+            <div><i class='bx bxs-thermometer icon' ></i><span id="temperature-white-oyster">N/A</span></div>
+            <div><i class='bx bxs-droplet icon' ></i><span id="humidity-white-oyster">N/A</span></div>
+            <div><i class='bx bx-wind icon'></i><span id="carbonDioxide-white-oyster">N/A</span></div>
+            <div><i class='bx bx-water icon' ></i><span id="soilMoisture-white-oyster">N/A</span></div>
+            <div><i class='bx bxs-bulb icon' ></i><span id="lightIntensity-white-oyster">N/A</span></div>
+        </div>
+        <a class="card-link" href="{{ url_for('white_oyster') }}"></a>
+    </div>
+</div>
+
+{% endblock %}

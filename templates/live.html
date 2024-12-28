@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Mushkin{% endblock %}
+
+{% block content %}
+<h1 class="title">Live Feed</h1>
+<ul class="breadcrumbs">
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li class="divider">/</li>
+    <li><a href="{{ url_for('live') }}" class="active">Live Feed</a></li>
+</ul>
+
+<div class="live-feed">
+    <h2>Live Stream from ESP32-CAM</h2>
+    <iframe src="{{ stream_url }}" width="640" height="480" frameborder="0" allowfullscreen></iframe>
+</div>
+{% endblock %}

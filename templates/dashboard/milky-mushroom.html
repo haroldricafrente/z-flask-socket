@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Mushkin{% endblock %}
+
+{% block content %}
+<h1 class="title">Milky Mushroom</h1>
+<ul class="breadcrumbs">
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li class="divider">/</li>
+    <li><a href="{{ url_for('index') }}">Dashboard</a></li>
+    <li class="divider">/</li>
+    <li><a href="{{ url_for('milky_mushroom') }}" class="active">Milky Mushroom</a></li>
+</ul>
+
+<div class="info-data">
+    <div class="card">
+        <div class="head">
+            <div>
+                <h2><span id="temperature-milky_mushroom">N/A</span> °C</h2>
+                <p>Temperature</p>
+            </div>
+            <i class='bx bxs-thermometer icon' ></i>
+        </div>
+        <span class="progress" data-value="0%"></span>
+    </div>
+
+    <div class="card">
+        <div class="head">
+            <div>
+                <h2><span id="humidity-milky_mushroom">N/A</span> %</h2>
+                <p>Humidity</p>
+            </div>
+            <i class='bx bx-droplet icon'></i>
+        </div>
+        <span class="progress" data-value="0%"></span>
+    </div>
+
+    <div class="card">
+        <div class="head">
+            <div>
+                <h2><span id="carbonDioxide-milky_mushroom">N/A</span></h2>
+                <p>CO2</p>
+            </div>
+            <i class='bx bx-wind icon' ></i>
+        </div>
+        <span class="progress" data-value="0%"></span>
+    </div>
+
+    <div class="card">
+        <div class="head">
+            <div>
+                <h2><span id="soilMoisture-milky_mushroom">N/A</span> %</h2>
+                <p>Soil Moisture</p>
+            </div>
+            <i class='bx bx-water icon'></i>
+        </div>
+        <span class="progress" data-value="0%"></span>
+    </div>
+
+    <div class="card">
+        <div class="head">
+            <div>
+                <h2><span id="lightIntensity-milky_mushroom">N/A</span></h2>
+                <p>Light Intensity</p>
+            </div>
+            <i class='bx bx-bulb icon' ></i>
+        </div>
+        <span class="progress" data-value="0%"></span>
+    </div>
+</div>        
+
+<div class="control-parameter">
+    <div class="charts-card">
+        <section id="real-time-data">
+            <div>
+                <h3>Environmental Parameter Chart</h3>
+                <canvas id="combinedChart" width="400" height="200"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <div class="charts-card">
+        <h2 class="chart-title">Controls</h2>
+        <div class="control-items">
+            <div class="control-item">
+                <label class="switch">
+                    <input type="checkbox" id="relaySwitch">
+                    <span class="slider"></span>
+                </label>
+                <p>Relay</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
