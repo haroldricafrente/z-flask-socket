@@ -73,19 +73,38 @@ def receive_data():
     # Add timestamp to the data
     data['timestamp'] = datetime.now(timezone.utc)  # Use timezone-aware datetime
     
-    # Store data in MongoDB
-    collection.insert_one(data)
+    # Store data in MongoDB based on sensor type
+    if data['sensor_type'] == 'chestnut':
+        collection_chestnut = db['chestnut_sensor_readings']
+        collection_chestnut.insert_one(data)
+        # Emit Chestnut specific event
+        socketio.emit('chestnut_update', {
+            'sensor_type': data.get('sensor_type'),
+            'temperature': data.get('temperature'),
+            'humidity': data.get('humidity'),
+            'soilMoisture': data.get('soilMoisture'),
+            'lightIntensity': data.get('lightIntensity'),
+            'timestamp': data.get('timestamp').isoformat() + 'Z'  # Convert to ISO format
+        })
+    elif data['sensor_type'] == 'milky_mushroom':
+        collection_milky = db['milky_mushroom_sensor_readings']
+        collection_milky.insert_one(data)
+        # Emit Milky Mushroom specific event
+        socketio.emit('milky_update', {
+            'sensor_type': data.get('sensor_type'),
+            'temperature': data.get('temperature'),
+            'humidity': data.get('humidity'),
+            'soilMoisture': data.get('soilMoisture'),
+            'lightIntensity': data.get('lightIntensity'),
+            'timestamp': data.get('timestamp').isoformat() + 'Z'  # Convert to ISO format
+        })
+    else:
+        collection.insert_one(data)
     
-    # Emit data to the frontend via Socket.IO
-    socketio.emit('sensor_update', {
-        'sensor_type': data.get('sensor_type'),
-        'temperature': data.get('temperature'),
-        'humidity': data.get('humidity'),
-        'soilMoisture': data.get('soilMoisture'),
-        'lightIntensity': data.get('lightIntensity'),
-        'timestamp': data.get('timestamp').isoformat() + 'Z'  # Convert to ISO format
-    })
     return jsonify({"status": "success"}), 200
+
+
+
 
 # connection from mongoDB to create a chart
 @app.route('/historical-data', methods=['GET'])
