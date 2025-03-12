@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Milky Mushroom Guide{% endblock %}
+
+{% block content %}
+<h1 class="title">About Milky Mushroom</h1>
+
+<!-- Banner -->
+<section id="banner">
+    <div class="content">
+        <p>Milky Mushrooms (<i>Calocybe indica</i>) are a robust and highly nutritious variety known for their thick, meaty texture and mild flavor. They are widely cultivated in tropical and subtropical regions due to their high-temperature tolerance. In agriculture, they provide a sustainable source of protein and essential nutrients, making them a valuable addition to diets worldwide.</p>
+        <br>
+        <h3>Optimal Growing Conditions</h3>
+
+        <p><strong>Temperature:</strong> 25-35°C (77-95°F)</p>
+
+        <p><strong>Humidity:</strong> 80-90%</p>
+
+        <p><strong>CO₂ Levels:</strong> Below 1000 ppm</p>
+
+        <p><strong>Light Intensity:</strong> Moderate indirect light</p>
+    </div>
+    <span class="image object">
+        <img src="{{ url_for('static', filename='images/info_milky.jpg') }}" alt="Milky Mushroom" />
+    </span>
+</section>
+
+{% endblock %}

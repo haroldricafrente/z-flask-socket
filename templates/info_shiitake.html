@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Shiitake Mushroom Guide{% endblock %}
+
+{% block content %}
+<h1 class="title">About Shiitake Mushroom</h1>
+
+<!-- Banner -->
+<section id="banner">
+    <div class="content">
+        <p>Shiitake Mushrooms (<i>Lentinula edodes</i>) are one of the most popular and widely cultivated edible mushrooms worldwide. Known for their rich, savory umami flavor, they are a staple in Asian cuisine and are also valued for their potential health benefits. Shiitake mushrooms grow naturally on decaying hardwood and play an essential role in breaking down organic matter in forest ecosystems.</p>
+        <br>
+        <h3>Optimal Growing Conditions</h3>
+
+        <p><strong>Temperature:</strong> 12-24°C (54-75°F)</p>
+
+        <p><strong>Humidity:</strong> 80-95%</p>
+
+        <p><strong>CO₂ Levels:</strong> Below 1000 ppm</p>
+
+        <p><strong>Light Intensity:</strong> Moderate indirect light</p>
+    </div>
+    <span class="image object">
+        <img src="{{ url_for('static', filename='images/info_shiitake.jpg') }}" alt="Shiitake Mushroom" />
+    </span>
+</section>
+
+{% endblock %}

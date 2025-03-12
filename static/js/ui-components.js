@@ -108,25 +108,74 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     window.addEventListener('click', function (e) {
-        if (e.target !== imgProfile) {
-            if (e.target !== dropdownProfile) {
-                if (dropdownProfile.classList.contains('show')) {
-                    dropdownProfile.classList.remove('show');
-                }
-            }
+        if (e.target !== imgProfile && !dropdownProfile.contains(e.target)) {
+            dropdownProfile.classList.remove('show');
         }
 
         allMenu.forEach(item => {
             const icon = item.querySelector('.icon');
             const menuLink = item.querySelector('.menu-link');
 
-            if (e.target !== icon) {
-                if (e.target !== menuLink) {
-                    if (menuLink.classList.contains('show')) {
-                        menuLink.classList.remove('show');
-                    }
-                }
+            if (e.target !== icon && e.target !== menuLink) {
+                menuLink.classList.remove('show');
             }
-        })
+        });
     });
+
+    // Notification Bell Functionality
+    const bellIcon = document.getElementById('bell-icon');
+    const notificationTab = document.getElementById('notification-tab');
+    const notificationList = document.getElementById('notification-list');
+    const notificationCounter = document.getElementById('notification-counter');
+    let notificationCount = 0;
+
+    bellIcon.addEventListener('click', () => {
+        notificationTab.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!notificationTab.contains(event.target) && event.target !== bellIcon) {
+            notificationTab.classList.remove('show');
+        }
+    });
+
+    function createNotification(message) {
+        const notificationItem = document.createElement('li');
+        const notificationText = document.createElement('span');
+        notificationText.classList.add('notification-text');
+        notificationText.textContent = message;
+
+        const closeButton = document.createElement('button');
+        closeButton.classList.add('close-btn');
+        closeButton.innerHTML = '&times;';
+        closeButton.addEventListener('click', () => {
+            notificationItem.remove();
+            notificationCount--;
+            updateNotificationCounter();
+        });
+
+        notificationItem.appendChild(notificationText);
+        notificationItem.appendChild(closeButton);
+
+        notificationList.appendChild(notificationItem);
+        notificationCount++;
+        updateNotificationCounter();
+    }
+
+    function updateNotificationCounter() {
+        if (notificationCount > 0) {
+            notificationCounter.textContent = notificationCount;
+            notificationCounter.style.display = 'block';
+        } else {
+            notificationCounter.style.display = 'none';
+        }
+    }
+
+    window.createNotification = createNotification;
+
+    document.getElementById("clear-notifications").addEventListener("click", function() {
+        notificationList.innerHTML = '';
+        notificationCounter.style.display = 'none';
+    });
+    
 });

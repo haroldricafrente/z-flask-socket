@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Reishi Mushroom Guide{% endblock %}
+
+{% block content %}
+<h1 class="title">About Reishi Mushroom</h1>
+
+<!-- Banner -->
+<section id="banner">
+    <div class="content">
+        <p>Reishi Mushrooms (<i>Ganoderma lucidum</i>) have been highly valued in traditional medicine for centuries due to their potential health benefits. Known as the "Mushroom of Immortality," Reishi is rich in bioactive compounds that support immune function and overall well-being. It typically grows on hardwood trees in warm, humid climates.</p>
+        <br>
+        <h3>Optimal Growing Conditions</h3>
+
+        <p><strong>Temperature:</strong> 21-27°C (70-80°F)</p>
+
+        <p><strong>Humidity:</strong> 85-95%</p>
+
+        <p><strong>CO₂ Levels:</strong> Below 1,000 ppm</p>
+
+        <p><strong>Light Intensity:</strong> Low to moderate indirect light</p>
+    </div>
+    <span class="image object">
+        <img src="{{ url_for('static', filename='images/info_reishi.png') }}" alt="Reishi Mushroom" />
+    </span>
+</section>
+
+{% endblock %}

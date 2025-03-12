@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Support{% endblock %}
+
+{% block content %}
+<div class="support-container">
+    <div class="support-card">
+        <div>
+            <h1>Mushkin Support Ticket System</h1>
+            <p>If you encounter any issues with the Mushkin system, please fill out the form below and our team will assist you.</p>
+            
+            <form action="{{ url_for('send_email') }}" method="post">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+                
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required>
+                
+                <label for="issue_type">Issue Type:</label>
+                <select id="issue_type" name="issue_type" required>
+                    <option value="sensor_issue">Sensor Issue</option>
+                    <option value="network_issue">Network Issue</option>
+                    <option value="dashboard_problem">Dashboard Problem</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <label for="description">Issue Description:</label>
+                <textarea id="description" name="description" rows="5" required></textarea>
+                
+                <button type="submit" class="support-submit-btn">Submit Ticket</button>
+
+            </form>
+        </div>
+    </div>
+</div> 
+{% endblock %}

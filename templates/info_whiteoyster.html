@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}White Oyster Mushroom Guide{% endblock %}
+
+{% block content %}
+<h1 class="title">About White Oyster Mushroom</h1>
+
+<!-- Banner -->
+<section id="banner">
+    <div class="content">
+        <p>White Oyster Mushrooms (<i>Pleurotus ostreatus</i>) are widely cultivated for their delicate texture and mild, savory flavor. These mushrooms are known for their rapid growth and adaptability, making them a popular choice for both commercial and home cultivation. They also play a crucial role in biodegradation, breaking down organic matter and enriching soil health.</p>
+        <br>
+        <h3>Optimal Growing Conditions</h3>
+
+        <p><strong>Temperature:</strong> 18-24°C (64-75°F)</p>
+
+        <p><strong>Humidity:</strong> 85-95%</p>
+
+        <p><strong>CO₂ Levels:</strong> Below 1000 ppm</p>
+
+        <p><strong>Light Intensity:</strong> Moderate indirect light</p>
+    </div>
+    <span class="image object">
+        <img src="{{ url_for('static', filename='images/info_whiteoyster.jpg') }}" alt="White Oyster Mushroom" />
+    </span>
+</section>
+
+{% endblock %}

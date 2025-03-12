@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Shiitake - Mushkin{% endblock %}
+{% block title %}Milky Mushroom - Mushkin{% endblock %}
 
 {% block content %}
-<h1 class="title">Shiitake</h1>
+<h1 class="title">Milky Mushroom</h1>
 <ul class="breadcrumbs">
     <li><a href="{{ url_for('index') }}">Home</a></li>
     <li class="divider">/</li>
     <li><a href="{{ url_for('index') }}">Dashboard</a></li>
     <li class="divider">/</li>
-    <li><a href="{{ url_for('mushroom_gallery', mushroom_type='shiitake') }}" class="active">Shiitake</a></li>
+    <li><a href="{{ url_for('mushroom_gallery', mushroom_type='milky_mushroom') }}" class="active">Milky Mushroom</a></li>
 </ul>
 
 <div class="info-data">
     <div class="card">
         <div class="head">
             <div>
-                <h2><span id="temperature-shiitake">N/A</span></h2>
+                <h2><span id="temperature-milky_mushroom">N/A</span></h2>
                 <p>Temperature</p>
             </div>
             <div class="tooltip">
                 <i class='bx bxs-thermometer icon'></i>
-                <span class="tooltiptext">Optimal: 18-24°C</span>
+                <span class="tooltiptext">Optimal: 24-30°C</span>
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
     <div class="card">
         <div class="head">
             <div>
-                <h2><span id="humidity-shiitake">N/A</span></h2>
+                <h2><span id="humidity-milky_mushroom">N/A</span></h2>
                 <p>Humidity</p>
             </div>
             <div class="tooltip">
@@ -42,12 +42,12 @@
     <div class="card">
         <div class="head">
             <div>
-                <h2><span id="soilMoisture-shiitake">N/A</span></h2>
+                <h2><span id="soilMoisture-milky_mushroom">N/A</span></h2>
                 <p>Soil Moisture</p>
             </div>
             <div class="tooltip">
                 <i class='bx bx-water icon'></i>
-                <span class="tooltiptext">Optimal: 60-75%</span>
+                <span class="tooltiptext">Optimal: 60-80%</span>
             </div>
         </div>
     </div>
@@ -55,7 +55,7 @@
     <div class="card">
         <div class="head">
             <div>
-                <h2><span id="lightIntensity-shiitake">N/A</span></h2>
+                <h2><span id="lightIntensity-milky_mushroom">N/A</span></h2>
                 <p>Light Intensity</p>
             </div>
             <div class="tooltip">
@@ -68,7 +68,7 @@
     <div class="card">
         <div class="head">
             <div>
-                <h2><span id="ECO2-shiitake">N/A</span></h2>
+                <h2><span id="ECO2-milky_mushroom">N/A</span></h2>
                 <p>CO2</p>
             </div>
             <div class="tooltip">
@@ -82,7 +82,7 @@
 <!-- Button to redirect to Google Drive folder -->
 <div class="control-parameter">
     <div class="charts-card">
-        <h3>Shiitake Mushroom Gallery</h3>
+        <h3>Milky Mushroom Gallery</h3>
         <a href="{{ drive_url }}" target="_blank">
             <button class="gdriveButton">Go to Image Gallery</button>
         </a>
@@ -94,7 +94,7 @@
         <section id="historical-data">
             <div>
                 <h3>Historical Data Chart</h3>
-                <canvas id="shiitakeChart" class="responsive-chart" width="600" height="400"></canvas>
+                <canvas id="milkyChart" class="responsive-chart" width="600" height="400"></canvas>
             </div>
         </section>
     </div>

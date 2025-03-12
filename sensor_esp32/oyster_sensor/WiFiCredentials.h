@@ -2,7 +2,7 @@
 #define WIFI_CREDENTIALS_H
 
 // Define your Wi-Fi credentials
-const char* ssid = "OT7";
-const char* password = "dIk0aLAm";
+const char* ssid = "BawalAngHappy";
+const char* password = "0987654321";
 
 #endif // WIFI_CREDENTIALS_H

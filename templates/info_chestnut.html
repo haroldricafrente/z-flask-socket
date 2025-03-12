@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Chestnut Mushroom Guide{% endblock %}
+
+{% block content %}
+<h1 class="title">About Chestnut Mushroom</h1>
+
+<!-- Banner -->
+<section id="banner">
+    <div class="content">
+        <p>Chestnut Mushrooms (<i>Pholiota adiposa</i>) are a gourmet variety valued for their rich, nutty flavor and firm texture. In natural ecosystems, they contribute to nutrient cycling by decomposing hardwood, making them an essential component of forest regeneration. Their adaptability and depth of flavor make them a preferred choice in culinary applications.</p>
+        <br>
+        <h3>Optimal Growing Conditions</h3>
+
+        <p><strong>Temperature:</strong> 18-24°C (64-75°F)</p>
+
+        <p><strong>Humidity:</strong> 85-95%</p>
+
+        <p><strong>CO₂ Levels:</strong> Below 800 ppm</p>
+
+        <p><strong>Light Intensity:</strong> Low to moderate indirect light</p>
+    </div>
+    <span class="image object">
+        <img src="{{ url_for('static', filename='images/info_chestnut.jpg') }}" alt="Chestnut Mushroom" />
+    </span>
+</section>
+
+{% endblock %}

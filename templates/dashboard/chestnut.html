@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Chestnut - Real-Time Sensor Data{% endblock %}
+{% block title %}Chestnut - Mushkin{% endblock %}
 
 {% block content %}
-<h1 class="title">Chestnut</h1>
+<h1 class="title">Chestnut Mushroom</h1>
 <ul class="breadcrumbs">
     <li><a href="{{ url_for('index') }}">Home</a></li>
     <li class="divider">/</li>
     <li><a href="{{ url_for('index') }}">Dashboard</a></li>
     <li class="divider">/</li>
-    <li><a href="{{ url_for('chestnut') }}" class="active">Chestnut</a></li>
+    <li><a href="{{ url_for('mushroom_gallery', mushroom_type='chestnut') }}" class="active">Chestnut</a></li>
 </ul>
 
 <div class="info-data">
@@ -19,9 +19,11 @@
                 <h2><span id="temperature-chestnut">N/A</span></h2>
                 <p>Temperature</p>
             </div>
-            <i class='bx bxs-thermometer icon'></i>
+            <div class="tooltip">
+                <i class='bx bxs-thermometer icon'></i>
+                <span class="tooltiptext">Optimal: 18-22°C</span>
+            </div>
         </div>
-        <span class="progress" data-value="0%"></span>
     </div>
 
     <div class="card">
@@ -30,20 +32,11 @@
                 <h2><span id="humidity-chestnut">N/A</span></h2>
                 <p>Humidity</p>
             </div>
-            <i class='bx bx-droplet icon'></i>
-        </div>
-        <span class="progress" data-value="0%"></span>
-    </div>
-
-    <div class="card">
-        <div class="head">
-            <div>
-                <h2><span id="carbonDioxide-chestnut">N/A</span></h2>
-                <p>CO2</p>
+            <div class="tooltip">
+                <i class='bx bx-droplet icon'></i>
+                <span class="tooltiptext">Optimal: 85-95%</span>
             </div>
-            <i class='bx bx-wind icon'></i>
         </div>
-        <span class="progress" data-value="0%"></span>
     </div>
 
     <div class="card">
@@ -52,9 +45,11 @@
                 <h2><span id="soilMoisture-chestnut">N/A</span></h2>
                 <p>Soil Moisture</p>
             </div>
-            <i class='bx bx-water icon'></i>
+            <div class="tooltip">
+                <i class='bx bx-water icon'></i>
+                <span class="tooltiptext">Optimal: 60-80%</span>
+            </div>
         </div>
-        <span class="progress" data-value="0%"></span>
     </div>
 
     <div class="card">
@@ -63,34 +58,45 @@
                 <h2><span id="lightIntensity-chestnut">N/A</span></h2>
                 <p>Light Intensity</p>
             </div>
-            <i class='bx bx-bulb icon'></i>
+            <div class="tooltip">
+                <i class='bx bx-bulb icon'></i>
+                <span class="tooltiptext">Optimal: 500-1000 lux</span>
+            </div>
         </div>
-        <span class="progress" data-value="0%"></span>
     </div>
-</div>        
+
+    <div class="card">
+        <div class="head">
+            <div>
+                <h2><span id="ECO2-chestnut">N/A</span></h2>
+                <p>CO2</p>
+            </div>
+            <div class="tooltip">
+                <i class='bx bx-wind icon'></i>
+                <span class="tooltiptext">Optimal: Below 1000 ppm</span>
+            </div>
+        </div>
+    </div>
+</div>            
+
+<!-- Button to redirect to Google Drive folder -->
+<div class="control-parameter">
+    <div class="charts-card">
+        <h3>Chestnut Mushroom Gallery</h3>
+        <a href="{{ drive_url }}" target="_blank">            <button class="gdriveButton">Go to Image Gallery</button>
+        </a>
+    </div>
+</div>
 
 <div class="control-parameter">
     <div class="charts-card">
         <section id="historical-data">
             <div>
                 <h3>Historical Data Chart</h3>
-                <canvas id="chestnutChart" width="400" height="200"></canvas>
+                <canvas id="chestnutChart" class="responsive-chart" width="600" height="400"></canvas>
             </div>
         </section>
     </div>
+</div> 
 
-    <div class="charts-card">
-        <h2 class="chart-title">Controls</h2>
-        <div class="control-items">
-            <div class="control-item">
-                <label class="switch">
-                    <input type="checkbox" id="relaySwitch">
-                    <span class="slider"></span>
-                </label>
-                <p>Relay</p>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
-

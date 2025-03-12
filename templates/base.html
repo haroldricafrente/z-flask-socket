@@ -6,70 +6,90 @@
     <title>{% block title %}Real-Time Sensor Data{% endblock %}</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js" defer></script>
-    <!-- <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script> -->
-     <script src="{{ url_for('static', filename='js/ui-components.js') }}" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/ui-components.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/data-components.js') }}" defer></script>
 
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/mushkin_logo.png') }}">
 </head>
 <body>
+    
     <!-- SIDEBAR -->
     <section id="sidebar">
-        <a href="{{ url_for('index') }}" class="brand">
+        <a href="{{ url_for('index') }}" class="brand {{ 'sidebar-active' if request.endpoint == 'index' else '' }}">
             <img src="{{ url_for('static', filename='images/mushkin_logo.png') }}" alt="Mushkin Logo" class="logo">
             mushkin
         </a>        
         <ul class="side-menu">
-            <li><a href="{{ url_for('index') }}"><i class='bx bxs-dashboard icon' ></i> Dashboard</a></li>
+            <li><a href="{{ url_for('index') }}" class="{{ 'sidebar-active' if request.endpoint == 'index' else '' }}"><i class='bx bxs-dashboard icon'></i> Dashboard</a></li>
             <li class="divider" data-text="main">Main</li>
             <li>
-                <a href="#"><i class='bx bxs-leaf icon' ></i> Mushroom <i class='bx bx-chevron-right icon-right' ></i></a>
+                <a href="#" class="{{ 'sidebar-active' if request.endpoint in ['chestnut', 'milky_mushroom', 'reishi', 'shiitake', 'white_oyster'] else '' }}"><i class='bx bxs-leaf icon'></i> Mushroom <i class='bx bx-chevron-right icon-right'></i></a>
                 <ul class="side-dropdown">
-                    <li><a href="{{ url_for('chestnut') }}">Chestnut</a></li>
-                    <li><a href="{{ url_for('milky_mushroom') }}">Milky Mushroom</a></li>
-                    <li><a href="{{ url_for('reishi') }}">Reishi</a></li>
-                    <li><a href="{{ url_for('shiitake') }}">Shiitake</a></li>
-                    <li><a href="{{ url_for('white_oyster') }}">White Oyster</a></li>
+                    <li><a href="{{ url_for('chestnut_info') }}" class="{{ 'sidebar-active' if request.endpoint == 'chestnut_info' else '' }}">Chestnut</a></li>
+                    <li><a href="{{ url_for('milkymushroom_info') }}" class="{{ 'sidebar-active' if request.endpoint == 'milkymushroom_info' else '' }}">Milky Mushroom</a></li>
+                    <li><a href="{{ url_for('reishi_info') }}" class="{{ 'sidebar-active' if request.endpoint == 'Reishi_info' else '' }}">Reishi</a></li>
+                    <li><a href="{{ url_for('shiitake_info') }}" class="{{ 'sidebar-active' if request.endpoint == 'shiitake_info' else '' }}">Shiitake</a></li>
+                    <li><a href="{{ url_for('whiteoyster_info') }}" class="{{ 'sidebar-active' if request.endpoint == 'whiteoyster' else '' }}">White Oyster</a></li>
+                    
                 </ul>
             </li>
-            <li><a href="{{ url_for('live') }}"><i class='bx bxs-video icon' ></i> Live</a></li>
-            <li><a href="#"><i class='bx bx-support icon' ></i> Support</a></li>
+            <li><a href="{{ url_for('live') }}" class="{{ 'sidebar-active' if request.endpoint == 'live' else '' }}"><i class='bx bxs-video icon'></i> Live</a></li>
+            <li><a href="{{ url_for('support') }}" class="{{ 'sidebar-active' if request.endpoint == 'support' else '' }}"><i class='bx bx-support icon'></i> Support</a></li>
         </ul>
     </section>
+    
     <!-- SIDEBAR -->
 
     <!-- NAVBAR -->
     <section id="content">
-        <!-- NAVBAR -->
         <nav>
-            <i class='bx bx-menu toggle-sidebar' ></i>
+            <i class='bx bx-menu toggle-sidebar'></i>
             <form action="#">
                 <div class="form-group">
                     <input type="text" placeholder="Search...">
-                    <i class='bx bx-search icon' ></i>
+                    <i class='bx bx-search icon'></i>
                 </div>
             </form>
-            <a href="#" class="nav-link">
-                <i class='bx bxs-bell icon' ></i>
-                <span class="badge">0</span>
-            </a>
+
+            <!-- Notification Bell -->
+            <button id="bell-icon" class="bell-button">
+                &#128276;
+                <span id="notification-counter" class="badge" style="display: none;">0</span> <!-- Notification counter -->
+            </button>
+            
+
+            <div id="notification-tab" class="notification-tab">
+                <h3>Notifications 
+                    <span id="clear-notifications" class="clear-all-link">Clear All</span>
+                </h3>
+                <ul id="notification-list">
+                    <!-- Notifications will be dynamically added here -->
+                </ul>
+            </div>
+            
+            
+
             <span class="divider"></span>
             <div class="profile">
                 <img src="{{ url_for('static', filename='images/blank-profile.png') }}" alt="profile">
                 <ul class="profile-link">
-                    <li><a href="#"><i class='bx bxs-user-circle icon' ></i> Profile</a></li>
-                    <li><a href="#"><i class='bx bxs-cog' ></i> Settings</a></li>
-                    <li><a href="#"><i class='bx bxs-log-out-circle' ></i> Logout</a></li>
+                    <li><a href="#"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
+                    <li><a href="#"><i class='bx bxs-cog'></i> Settings</a></li>
+                    <a href="{{ url_for('logout') }}"><i class='bx bxs-log-out-circle'></i> Logout</a>
                 </ul>
             </div>
         </nav>
-        <!-- NAVBAR -->
 
-        <!-- MAIN -->
+        
+
+
+        <!-- MAIN CONTENT -->
         <main>
             {% block content %}
             <h1 class="title">Chestnut</h1>
@@ -88,7 +108,7 @@
                             <h2><span id="temperature">N/A</span> °C</h2>
                             <p>Temperature</p>
                         </div>
-                        <i class='bx bxs-thermometer icon' ></i>
+                        <i class='bx bxs-thermometer icon'></i>
                     </div>
                     <span class="progress" data-value="0%"></span>
                 </div>
@@ -121,11 +141,11 @@
                             <h2><span id="lightIntensity">N/A</span></h2>
                             <p>Light Intensity</p>
                         </div>
-                        <i class='bx bx-bulb icon' ></i>
+                        <i class='bx bx-bulb icon'></i>
                     </div>
                     <span class="progress" data-value="0%"></span>
                 </div>
-            </div>        
+            </div>
 
             <div class="control-parameter">
                 <div class="charts-card">
@@ -152,8 +172,7 @@
             </div>
             {% endblock %}
         </main>
-        <!-- MAIN -->
+        <!-- END MAIN CONTENT -->
     </section>
-    <!-- NAVBAR -->
 </body>
 </html>

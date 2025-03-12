@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mushroom_type }} - Mushkin{% endblock %}
+
+{% block content %}
+
+
+
+<div class="title-container">
+    <h1 class="title">{{ mushroom_type }} Mushroom</h1>
+    <a href="{{ drive_url }}" target="_blank" class="gdriveButton">Go to Image Gallery</a>
+</div>
+
+<ul class="breadcrumbs">
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li class="divider">/</li>
+    <li><a href="{{ url_for('index') }}">Dashboard</a></li>
+    <li class="divider">/</li>
+    <li><a href="{{ drive_url }}" class="active">{{ mushroom_type }}</a></li>
+</ul>
+
+
+
+<div class="info-data">
+    {% for param, value in optimal_conditions.items() %}
+    <div class="card">
+        <div class="head">
+            <div>
+                <h2><span id="{{ param }}-{{ mushroom_type|lower|replace(' ', '-') }}">N/A</span></h2>
+                <p>{{ param.replace("ECO2", "CO2") }}</p>
+            </div>
+            <div class="tooltip">
+                <i class='bx bx-info-circle icon'></i>
+                <span class="tooltiptext">Optimal: {{ value }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>            
+
+<div class="control-parameter">
+    <div class="charts-card">
+        <section id="historical-data">
+            <div>
+                <h3>Historical Data Chart</h3>
+                <canvas id="{{ mushroom_type|lower|replace(' ', '-') }}Chart" class="responsive-chart" width="600" height="400"></canvas>
+            </div>
+        </section>
+    </div>
+</div> 
+
+
+
+{% endblock %}

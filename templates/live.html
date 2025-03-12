@@ -1,17 +1,127 @@
 {% extends "base.html" %}
 
-{% block title %}Mushkin{% endblock %}
+{% block title %}Mushkin - Live Feed{% endblock %}
 
 {% block content %}
-<h1 class="title">Live Feed</h1>
+<h1>Live Feed</h1>
+
 <ul class="breadcrumbs">
     <li><a href="{{ url_for('index') }}">Home</a></li>
     <li class="divider">/</li>
-    <li><a href="{{ url_for('live') }}" class="active">Live Feed</a></li>
+    <li><a href="{{ url_for('live') }}" class="active">Live</a></li>
 </ul>
 
-<div class="live-feed">
-    <h2>Live Stream from ESP32-CAM</h2>
-    <iframe src="{{ stream_url }}" width="640" height="480" frameborder="0" allowfullscreen></iframe>
+<!-- Dropdown for selecting size -->
+<br>
+<label for="sizeSelector">Select Camera Size:</label>
+<select id="sizeSelector">
+    <option value="small">Small</option>
+    <option value="medium" selected>Medium</option>
+    <option value="large">Large</option>
+</select>
+
+<div class="live-page">
+    <div class="live-container">
+        <div class="live-grid">
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Chestnut Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('http://192.168.100.189/capture', 'Chestnut')">Capture</button>
+                </div>
+                <img src="http://192.168.100.189/stream" alt="Chestnut Camera Stream" class="camera-stream">
+            </div>
+
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Milky Mushroom Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('http://192.168.1.21/capture', 'Milky Mushroom')">Capture</button>
+                </div>
+                <img src="http://192.168.1.21/stream" alt="Milky Mushroom Camera Stream" class="camera-stream">
+            </div>
+
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Oyster Mushroom Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('http://192.168.1.20/capture', 'Oyster Mushroom')">Capture</button>
+                </div>
+                <img src="http://192.168.1.20/stream" alt="Oyster Mushroom Camera Stream" class="camera-stream">
+            </div>
+
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Shiitake Mushroom Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('http://192.168.1.23/capture', 'Shiitake Mushroom')">Capture</button>
+                </div>
+                <img src="http://192.168.1.23/stream" alt="Shiitake Mushroom Camera Stream" class="camera-stream">
+            </div>
+
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Reishi Mushroom Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('http://192.168.1.24/capture', 'Reishi Mushroom')">Capture</button>
+                </div>
+                <img src="http://192.168.1.24/stream" alt="Reishi Mushroom Camera Stream" class="camera-stream">
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- JavaScript to handle image capture and size selection -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+
+
+        // Image size selector logic
+        document.getElementById("sizeSelector").addEventListener("change", function () {
+            let size = this.value;
+            document.querySelectorAll(".camera-stream").forEach(img => {
+                img.style.width = size === "small" ? "200px" : size === "medium" ? "400px" : "600px";
+                img.style.height = "auto";
+            });
+        });
+    });
+</script>
+
+<!-- CSS Styling -->
+<style>
+    /* Ensure title and button are next to each other */
+    .camera-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Ensures spacing */
+        gap: 10px; /* Space between title and button */
+        margin-bottom: 10px;
+    }
+
+    /* Style capture buttons */
+    .capture-btn {
+        background-color: #007BFF; /* Blue color */
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Hover effect */
+    .capture-btn:hover {
+        background-color: #0056b3; /* Darker blue */
+    }
+
+    /* Responsive: Stack title and button on smaller screens */
+    @media (max-width: 600px) {
+        .camera-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .capture-btn {
+            width: 100%;
+        }
+    }
+</style>
+
 {% endblock %}
