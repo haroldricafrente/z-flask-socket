@@ -269,7 +269,8 @@ def receive_data():
             "ECO2": data.get("ECO2"),
             "timestamp": data["timestamp"].isoformat() + "Z"
         })
-
+        
+        
         return jsonify({"status": "success"}), 200
 
     except Exception as e:
@@ -369,5 +370,8 @@ def send_email():
 
 # ---------------- RUN APP ----------------
 
+# if __name__ == "__main__":
+#     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False)

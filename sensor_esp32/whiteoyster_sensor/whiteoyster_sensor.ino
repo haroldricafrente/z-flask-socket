@@ -89,7 +89,7 @@ void loop() {
 
   if (!isnan(temperature) && !isnan(humidity)) {
     StaticJsonDocument<200> jsonDoc;
-    jsonDoc["sensor_type"] = "milky_mushroom";
+    jsonDoc["sensor_type"] = "white_oyster";
     jsonDoc["temperature"] = temperature;
     jsonDoc["humidity"] = humidity;
     jsonDoc["soilMoisture"] = soilMoistureBinary;

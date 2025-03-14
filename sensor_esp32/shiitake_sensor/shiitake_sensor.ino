@@ -25,7 +25,7 @@ DHT dht(DHTPIN, DHTTYPE);
   DFRobot_ENS160_SPI ENS160(&SPI, csPin);
 #endif
 
-const float HUMIDITY_THRESHOLD = 85.0;
+const float HUMIDITY_THRESHOLD = 80.0;
 unsigned long previousMillis = 0;
 const unsigned long FAN_ON_DURATION = 6 * 60 * 1000;  
 const unsigned long FAN_OFF_DURATION = 1 * 60 * 1000; 
@@ -89,7 +89,7 @@ void loop() {
 
   if (!isnan(temperature) && !isnan(humidity)) {
     StaticJsonDocument<200> jsonDoc;
-    jsonDoc["sensor_type"] = "milky_mushroom";
+    jsonDoc["sensor_type"] = "shiitake";
     jsonDoc["temperature"] = temperature;
     jsonDoc["humidity"] = humidity;
     jsonDoc["soilMoisture"] = soilMoistureBinary;
