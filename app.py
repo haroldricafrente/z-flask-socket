@@ -370,8 +370,8 @@ def send_email():
 
 # ---------------- RUN APP ----------------
 
-if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
-
 # if __name__ == "__main__":
-#     socketio.run(app, host="0.0.0.0", port=5000, debug=False)
+#     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False)
