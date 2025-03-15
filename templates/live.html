@@ -23,56 +23,92 @@
 <div class="live-page">
     <div class="live-container">
         <div class="live-grid">
+            {% for mushroom, ip in {"Chestnut": "192.168.100.189", "Milky": "192.168.100.190", "Reishi": "192.168.100.191", "Shiitake": "192.168.100.192", "White Oyster": "192.168.100.193"}.items() %}
             <div class="camera-card">
                 <div class="camera-header">
-                    <h2>Chestnut Camera</h2>
-                    <button class="capture-btn" onclick="captureImage('http://192.168.100.189/capture', 'Chestnut')">Capture</button>
+                    <h2>{{ mushroom }} Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('{{ ip }}', '{{ mushroom.lower() }}')">Capture</button>
                 </div>
-                <img src="http://192.168.100.189/stream" alt="Chestnut Camera Stream" class="camera-stream">
+                <img id="{{ mushroom.lower().replace(' ', '_') }}-stream" src="http://{{ ip }}/stream_{{ mushroom.lower().replace(' ', '_') }}" alt="{{ mushroom }} Camera Stream" class="camera-stream">
             </div>
-
-            <div class="camera-card">
-                <div class="camera-header">
-                    <h2>Milky Mushroom Camera</h2>
-                    <button class="capture-btn" onclick="captureImage('http://192.168.1.21/capture', 'Milky Mushroom')">Capture</button>
-                </div>
-                <img src="http://192.168.1.21/stream" alt="Milky Mushroom Camera Stream" class="camera-stream">
-            </div>
-
-            <div class="camera-card">
-                <div class="camera-header">
-                    <h2>Oyster Mushroom Camera</h2>
-                    <button class="capture-btn" onclick="captureImage('http://192.168.1.20/capture', 'Oyster Mushroom')">Capture</button>
-                </div>
-                <img src="http://192.168.1.20/stream" alt="Oyster Mushroom Camera Stream" class="camera-stream">
-            </div>
-
-            <div class="camera-card">
-                <div class="camera-header">
-                    <h2>Shiitake Mushroom Camera</h2>
-                    <button class="capture-btn" onclick="captureImage('http://192.168.1.23/capture', 'Shiitake Mushroom')">Capture</button>
-                </div>
-                <img src="http://192.168.1.23/stream" alt="Shiitake Mushroom Camera Stream" class="camera-stream">
-            </div>
-
-            <div class="camera-card">
-                <div class="camera-header">
-                    <h2>Reishi Mushroom Camera</h2>
-                    <button class="capture-btn" onclick="captureImage('http://192.168.1.24/capture', 'Reishi Mushroom')">Capture</button>
-                </div>
-                <img src="http://192.168.1.24/stream" alt="Reishi Mushroom Camera Stream" class="camera-stream">
-            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
-<!-- JavaScript to handle image capture and size selection -->
+
+<!-- Upload Status Modal -->
+<div id="uploadStatusModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="uploadMessage"></p>
+    </div>
+</div>
+
+<!-- JavaScript to handle image capture, auto-refresh, and size selection -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        const cameras = {
+            "Chestnut": "192.168.100.189",
+            "Milky": "192.168.100.190",
+            "Reishi": "192.168.100.191",
+            "Shiitake": "192.168.100.192",
+            "White_Oyster": "192.168.100.193"
+        };
+
+        // function refreshStreams() {
+        //     Object.entries(cameras).forEach(([name, ip]) => {
+        //         let streamImg = document.getElementById(`${name.toLowerCase().replace(' ', '_')}-stream`);
+        //         let timestamp = new Date().getTime();
+        //         streamImg.src = `http://${ip}/stream_${name.toLowerCase()}`;
+        //     });
+        // }
+        // setInterval(refreshStreams, 5000);
+        function refreshStreams() {
+        let chestnutStream = document.getElementById("chestnut-stream");
+        let timestamp = new Date().getTime();
+        chestnutStream.src = `http://192.168.100.189/stream_chestnut?t=${timestamp}`;
+    }
+    setInterval(refreshStreams, 5000);
 
 
+        function showUploadStatus(message, isSuccess) {
+            const modal = document.getElementById("uploadStatusModal");
+            const messageElement = document.getElementById("uploadMessage");
+            messageElement.innerHTML = message;
+            messageElement.style.color = isSuccess ? "green" : "red";
+            modal.style.display = "block";
+            document.querySelector(".close").onclick = function () {
+                modal.style.display = "none";
+            };
+        }
 
-        // Image size selector logic
+        function captureImage(ip, mushroom) {
+            const flaskServer = "{{ url_for('upload_image', _external=True) }}";
+            fetch(`http://${ip}/capture_${mushroom}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`ESP32 Error: ${response.statusText}`);
+                    return response.blob();
+                })
+                .then(blob => {
+                    let formData = new FormData();
+                    formData.append("file", blob, `capture_${mushroom}_${new Date().toISOString()}.jpg`);
+                    formData.append("mushroom", mushroom);
+                    return fetch(flaskServer, { method: "POST", body: formData });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message && data.message.includes("✅ Uploaded Successfully")) {
+                        showUploadStatus(`✅ ${mushroom} image uploaded successfully to Google Drive!`, true);
+                    } else {
+                        showUploadStatus(`❌ Upload failed for ${mushroom}: ` + (data.error || "Unknown error"), false);
+                    }
+                })
+                .catch(error => {
+                    showUploadStatus(`❌ Upload error for ${mushroom}: ` + error.message, false);
+                });
+        }
+
         document.getElementById("sizeSelector").addEventListener("change", function () {
             let size = this.value;
             document.querySelectorAll(".camera-stream").forEach(img => {
@@ -80,23 +116,22 @@
                 img.style.height = "auto";
             });
         });
+
+        window.captureImage = captureImage;
     });
 </script>
 
 <!-- CSS Styling -->
 <style>
-    /* Ensure title and button are next to each other */
     .camera-header {
         display: flex;
         align-items: center;
-        justify-content: space-between; /* Ensures spacing */
-        gap: 10px; /* Space between title and button */
+        justify-content: space-between;
+        gap: 10px;
         margin-bottom: 10px;
     }
-
-    /* Style capture buttons */
     .capture-btn {
-        background-color: #007BFF; /* Blue color */
+        background-color: #007BFF;
         color: white;
         border: none;
         padding: 8px 12px;
@@ -105,22 +140,37 @@
         border-radius: 5px;
         transition: background-color 0.3s ease;
     }
-
-    /* Hover effect */
     .capture-btn:hover {
-        background-color: #0056b3; /* Darker blue */
+        background-color: #0056b3;
     }
-
-    /* Responsive: Stack title and button on smaller screens */
     @media (max-width: 600px) {
         .camera-header {
             flex-direction: column;
             align-items: flex-start;
         }
-
         .capture-btn {
             width: 100%;
         }
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        box-shadow: 0px 0px 10px gray;
+        border-radius: 8px;
+    }
+    .modal-content {
+        text-align: center;
+    }
+    .close {
+        float: right;
+        font-size: 24px;
+        cursor: pointer;
     }
 </style>
 

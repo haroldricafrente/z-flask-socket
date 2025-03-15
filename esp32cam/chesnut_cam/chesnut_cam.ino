@@ -12,9 +12,12 @@
 const char* ssid = "OT7";
 const char* password = "dIk0aLAm";
 
+// Define Mushroom Type (Change accordingly)
+#define MUSHROOM_TYPE "chestnut" // Options: "chestnut", "milky", "reishi", "shiitake", "white_oyster"
+
 #define PART_BOUNDARY "123456789000000000000987654321"
 
-// This project was tested with the AI Thinker Model, M5STACK PSRAM Model and M5STACK WITHOUT PSRAM
+// This project was tested with the AI Thinker Model
 #define CAMERA_MODEL_AI_THINKER
 
 #if defined(CAMERA_MODEL_AI_THINKER)
@@ -136,25 +139,30 @@ void startCameraServer() {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = 80;
 
-    httpd_uri_t stream_uri = {
-        .uri       = "/stream",
+    char stream_uri[32];
+    snprintf(stream_uri, sizeof(stream_uri), "/stream_%s", MUSHROOM_TYPE);
+    httpd_uri_t stream_uri_handler = {
+        .uri       = stream_uri,
         .method    = HTTP_GET,
         .handler   = stream_handler,
         .user_ctx  = NULL
     };
 
-    httpd_uri_t capture_uri = {
-        .uri       = "/capture",
+    char capture_uri[32];
+    snprintf(capture_uri, sizeof(capture_uri), "/capture_%s", MUSHROOM_TYPE);
+    httpd_uri_t capture_uri_handler = {
+        .uri       = capture_uri,
         .method    = HTTP_GET,
         .handler   = capture_handler,
         .user_ctx  = NULL
     };
 
     if (httpd_start(&stream_httpd, &config) == ESP_OK) {
-        httpd_register_uri_handler(stream_httpd, &stream_uri);
-        httpd_register_uri_handler(stream_httpd, &capture_uri);
+        httpd_register_uri_handler(stream_httpd, &stream_uri_handler);
+        httpd_register_uri_handler(stream_httpd, &capture_uri_handler);
     }
 }
+
 
 
 void setup() {
@@ -207,6 +215,8 @@ void setup() {
   
   Serial.print("Camera Stream Ready! Go to: http://");
   Serial.print(WiFi.localIP());
+  Serial.print("/stream_");
+  Serial.println(MUSHROOM_TYPE);
   
   // Start streaming web server
   startCameraServer();

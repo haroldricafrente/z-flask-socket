@@ -10,10 +10,13 @@ from datetime import datetime, timezone, timedelta
 from bson import ObjectId
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaFileUpload  
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+import requests
 from werkzeug.utils import secure_filename
+import time
+import psutil 
 import json
 import os
 
@@ -22,7 +25,7 @@ load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
 
 # Secure Configuration
@@ -45,7 +48,7 @@ users_collection = db["users"]
 
 # Initialize Extensions
 bcrypt = Bcrypt(app)
-CORS(app)
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -279,21 +282,20 @@ def receive_data():
 
 
 # ---------------- Google Drive Setup ---------------- #
-service_account_path = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH")
+SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH")
 
-if not service_account_path:
-    print("GOOGLE_SERVICE_ACCOUNT_PATH is not set in the .env file!")
-    drive_service = None  # Prevent errors when trying to use it
-else:
+drive_service = None
+if SERVICE_ACCOUNT_FILE:
     try:
         creds = Credentials.from_service_account_file(
-            service_account_path, scopes=["https://www.googleapis.com/auth/drive.file"]
+            SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/drive.file"]
         )
         drive_service = build("drive", "v3", credentials=creds)
         print("✅ Google Drive API initialized successfully.")
     except Exception as e:
-        print(f"❌ Failed to initialize Google Drive API: {e}")
-        drive_service = None
+        print(f"❌ Google Drive API Error: {e}")
+else:
+    print("❌ GOOGLE_SERVICE_ACCOUNT_PATH not found in .env!")
 
 # ---------------- Mushroom Folder IDs ---------------- #
 CHESTNUT_FOLDER_ID = os.getenv("CHESTNUT_FOLDER_ID")
@@ -302,33 +304,142 @@ REISHI_FOLDER_ID = os.getenv("REISHI_FOLDER_ID")
 SHIITAKE_FOLDER_ID = os.getenv("SHIITAKE_FOLDER_ID")
 WHITE_OYSTER_FOLDER_ID = os.getenv("WHITE_OYSTER_FOLDER_ID")
 
+# ---------------- Ensure Upload Directory Exists ---------------- #
+UPLOADS_DIR = os.path.abspath("uploads")
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+# ---------------- File Deletion Function ---------------- #
+def release_file_and_delete(file_path, max_retries=5, wait_time=3):
+    """Attempts to release and delete a file safely."""
+    for attempt in range(max_retries):
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"✅ File deleted successfully: {file_path}")
+                return
+        except PermissionError:
+            print(f"⚠️ File in use, retrying in {wait_time} seconds... ({attempt+1}/{max_retries})")
+            time.sleep(wait_time)
+    print(f"❌ Final delete attempt failed: {file_path}")
+
 # ---------------- Upload Function ---------------- #
 def upload_to_drive(file_path, file_name, folder_id):
+    """Uploads a file to Google Drive and deletes it afterward."""
     if not drive_service:
         return "❌ Google Drive API not initialized. Check credentials."
+    if not folder_id:
+        return "❌ Folder ID is missing! Set the environment variable."
 
     try:
         file_metadata = {"name": file_name, "parents": [folder_id]}
-        media = MediaFileUpload(file_path, mimetype="image/jpeg", resumable=False)  # Ensuring it's not locked
+        media = MediaFileUpload(file_path, mimetype="image/jpeg", resumable=False)
 
         file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
         file_id = file.get("id")
 
         print(f"✅ Image uploaded successfully: {file_name} (File ID: {file_id})")
 
-        # Close the file and remove it after ensuring it's no longer in use
-        media = None  
-        os.remove(file_path)
+        # 🔴 Close media upload stream to release file handle
+        del media  
+        time.sleep(5)  # Wait before deletion
+
+        # ✅ Ensure file deletion
+        release_file_and_delete(file_path)
 
         return f"✅ Uploaded Successfully: {file_id}"
     except Exception as e:
-        print(f"❌ Upload Failed: {str(e)}")
+        print(f"❌ Upload Failed: {repr(e)}")
         return f"❌ Upload Failed: {str(e)}"
 
+# -------- image upalod route
+@app.route("/upload", methods=["POST"])
+def upload_image():
+    if "file" not in request.files or "mushroom" not in request.form:
+        return jsonify({"error": "❌ No file or mushroom type received"}), 400
+
+    file = request.files["file"]
+    mushroom = " ".join(word.capitalize() for word in request.form["mushroom"].split())
+
+    if file.filename == "":
+        return jsonify({"error": "❌ No selected file"}), 400
+
+    folder_map = {
+        "Chestnut": CHESTNUT_FOLDER_ID,
+        "Milky": MILKY_FOLDER_ID,
+        "Reishi": REISHI_FOLDER_ID,
+        "Shiitake": SHIITAKE_FOLDER_ID,
+        "White Oyster": WHITE_OYSTER_FOLDER_ID,
+    }
+
+    folder_id = folder_map.get(mushroom)
+    if not folder_id:
+        return jsonify({"error": f"❌ No folder found for {mushroom}"}), 400
+
+    # ✅ Secure Filename
+    filename = secure_filename(f"{mushroom.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
+    file_path = os.path.join(UPLOADS_DIR, filename)
+
+    try:
+        with open(file_path, "wb") as f:
+            f.write(file.read())
+
+        print(f"✅ File saved: {file_path}")
+        time.sleep(5)  # 🔴 Give OS time to release file
+
+        upload_status = upload_to_drive(file_path, filename, folder_id)
+
+        status_code = 200 if "✅" in upload_status else 500
+        return jsonify({"message": upload_status}), status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
+# ---------------- Capture Image from ESP32-CAM ---------------- #
+CAMERA_IPS = {
+    "chestnut": "http://192.168.100.189",
+    "oyster": "http://192.168.100.190",
+    "shiitake": "http://192.168.100.191",
+    "milky": "http://192.168.100.192",  
+    "reishi": "http://192.168.100.193",  
+}
 
+@app.route("/capture_image/<mushroom_type>", methods=["POST"])
+@login_required
+def capture_image(mushroom_type):
+    if mushroom_type not in CAMERA_IPS:
+        return jsonify({"error": "Invalid mushroom type"}), 400
 
+    try:
+        esp32_cam_url = f"{CAMERA_IPS[mushroom_type]}/capture"
+        response = requests.get(esp32_cam_url, timeout=10)
+
+        if response.status_code == 200:
+            filename = secure_filename(f"{mushroom_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
+            image_path = os.path.join(UPLOADS_DIR, filename)
+
+            with open(image_path, "wb") as f:
+                f.write(response.content)
+
+            folder_map = {
+                "chestnut": CHESTNUT_FOLDER_ID,
+                "oyster": WHITE_OYSTER_FOLDER_ID,
+                "milky": MILKY_FOLDER_ID,
+                "reishi": REISHI_FOLDER_ID,
+                "shiitake": SHIITAKE_FOLDER_ID,
+            }
+            folder_id = folder_map.get(mushroom_type)
+
+            if not folder_id:
+                return jsonify({"error": "❌ Folder ID missing!"}), 500
+
+            upload_status = upload_to_drive(image_path, filename, folder_id)
+
+            return jsonify({"message": upload_status}), 200
+        else:
+            return jsonify({"error": "❌ Failed to capture image"}), 500
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"❌ ESP32-CAM Error: {str(e)}"}), 500
 
 
 
@@ -370,8 +481,8 @@ def send_email():
 
 # ---------------- RUN APP ----------------
 
-# if __name__ == "__main__":
-#     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
-
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+
+# if __name__ == "__main__":
+#     socketio.run(app, host="0.0.0.0", port=5000, debug=False)
