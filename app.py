@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash, Response
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_socketio import SocketIO
 from flask_cors import CORS
@@ -16,6 +16,7 @@ from googleapiclient.discovery import build
 import requests
 from werkzeug.utils import secure_filename
 import time
+import cv2
 import psutil 
 import json
 import os
@@ -413,15 +414,33 @@ CAMERA_IPS = {
 }
 
 #------------ Stream Route-----------
-@app.route('/stream')
-def stream():
+def generate_frames(esp32_url):
+    cap = cv2.VideoCapture(esp32_url)
+    
+    while True:
+        success, frame = cap.read()
+        if not success:
+            break
+        
+        # Encode frame as JPEG
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+        
+        # Yield frame bytes for MJPEG streaming
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+# Streaming Relay Route
+@app.route('/stream_relay')
+def stream_relay():
     camera_id = request.args.get('camera_id')
     if not camera_id or camera_id not in CAMERA_IPS:
-        return "Camera ID not found", 404
-    
-    # Redirect to the ESP32-CAM's local stream
+        return jsonify({"error": "Camera ID not found"}), 404
+
     esp32_ip = CAMERA_IPS[camera_id]
-    return redirect(f"http://{esp32_ip}/stream_{camera_id}")
+    esp32_stream_url = f"http://{esp32_ip}/stream_{camera_id}"
+    
+    return Response(generate_frames(esp32_stream_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # Capture Image Route
 @app.route("/capture_image/<mushroom_type>", methods=["GET"])  # Changed to GET
@@ -430,7 +449,7 @@ def capture_image(mushroom_type):
         return jsonify({"error": "Invalid mushroom type"}), 400
 
     try:
-        esp32_cam_url = f"http://{CAMERA_IPS[mushroom_type]}/capture"
+        esp32_cam_url = f"http://{CAMERA_IPS[mushroom_type]}/capture_{mushroom_type}"
         response = requests.get(esp32_cam_url, timeout=10)
 
         if response.status_code == 200:
