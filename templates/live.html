@@ -30,6 +30,7 @@
                     <button class="capture-btn" onclick="captureImage('{{ ip }}', '{{ mushroom.lower() }}')">Capture</button>
                 </div>
                 <img id="{{ mushroom.lower().replace(' ', '_') }}-stream" src="http://{{ ip }}/stream_{{ mushroom.lower().replace(' ', '_') }}" alt="{{ mushroom }} Camera Stream" class="camera-stream">
+
             </div>
             {% endfor %}
         </div>
@@ -48,30 +49,21 @@
 <!-- JavaScript to handle image capture, auto-refresh, and size selection -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const cameras = {
-            "Chestnut": "192.168.100.189",
-            "Milky": "192.168.100.190",
-            "Reishi": "192.168.100.191",
-            "Shiitake": "192.168.100.192",
-            "White_Oyster": "192.168.100.193"
-        };
+        // List of camera IDs that match the Flask server's routing
+        const cameraIds = ["chestnut", "milky", "reishi", "shiitake", "white_oyster"];
 
-        // function refreshStreams() {
-        //     Object.entries(cameras).forEach(([name, ip]) => {
-        //         let streamImg = document.getElementById(`${name.toLowerCase().replace(' ', '_')}-stream`);
-        //         let timestamp = new Date().getTime();
-        //         streamImg.src = `http://${ip}/stream_${name.toLowerCase()}`;
-        //     });
-        // }
-        // setInterval(refreshStreams, 5000);
+        // Refresh the camera streams every 5 seconds
         function refreshStreams() {
-        let chestnutStream = document.getElementById("chestnut-stream");
-        let timestamp = new Date().getTime();
-        chestnutStream.src = `http://192.168.100.189/stream_chestnut?t=${timestamp}`;
-    }
-    setInterval(refreshStreams, 5000);
+            cameraIds.forEach(id => {
+                let streamImg = document.getElementById(`${id}-stream`);
+                let timestamp = new Date().getTime();
+                // Use EC2 instance for streaming
+                streamImg.src = `http://52.64.254.252:5000/stream?camera_id=${id}&t=${timestamp}`;
+            });
+        }
+        setInterval(refreshStreams, 5000);
 
-
+        // Show upload status in a modal
         function showUploadStatus(message, isSuccess) {
             const modal = document.getElementById("uploadStatusModal");
             const messageElement = document.getElementById("uploadMessage");
@@ -83,9 +75,10 @@
             };
         }
 
-        function captureImage(ip, mushroom) {
+        // Capture image through the EC2 server
+        function captureImage(mushroom) {
             const flaskServer = "{{ url_for('upload_image', _external=True) }}";
-            fetch(`http://${ip}/capture_${mushroom}`)
+            fetch(`http://52.64.254.252:5000/capture?camera_id=${mushroom}`)
                 .then(response => {
                     if (!response.ok) throw new Error(`ESP32 Error: ${response.statusText}`);
                     return response.blob();
@@ -109,6 +102,7 @@
                 });
         }
 
+        // Size Selector for resizing camera streams
         document.getElementById("sizeSelector").addEventListener("change", function () {
             let size = this.value;
             document.querySelectorAll(".camera-stream").forEach(img => {
@@ -117,9 +111,11 @@
             });
         });
 
+        // Expose the capture function to the global scope
         window.captureImage = captureImage;
     });
 </script>
+
 
 <!-- CSS Styling -->
 <style>

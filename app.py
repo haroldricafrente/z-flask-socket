@@ -278,9 +278,8 @@ def receive_data():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-
+    
+    
 # ---------------- Google Drive Setup ---------------- #
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH")
 
@@ -351,18 +350,17 @@ def upload_to_drive(file_path, file_name, folder_id):
         print(f"❌ Upload Failed: {repr(e)}")
         return f"❌ Upload Failed: {str(e)}"
 
-# -------- image upalod route
+# -------- image upalod route ----------
 @app.route("/upload", methods=["POST"])
 def upload_image():
-    if "file" not in request.files or "mushroom" not in request.form:
-        return jsonify({"error": "❌ No file or mushroom type received"}), 400
+    # Get Mushroom-Type from headers
+    mushroom_type = request.headers.get('Mushroom-Type')
+    if not mushroom_type:
+        return jsonify({"error": "❌ Mushroom-Type header missing"}), 400
 
-    file = request.files["file"]
-    mushroom = " ".join(word.capitalize() for word in request.form["mushroom"].split())
-
-    if file.filename == "":
-        return jsonify({"error": "❌ No selected file"}), 400
-
+    # Validate the mushroom type
+    mushroom = " ".join(word.capitalize() for word in mushroom_type.split())
+    
     folder_map = {
         "Chestnut": CHESTNUT_FOLDER_ID,
         "Milky": MILKY_FOLDER_ID,
@@ -374,6 +372,14 @@ def upload_image():
     folder_id = folder_map.get(mushroom)
     if not folder_id:
         return jsonify({"error": f"❌ No folder found for {mushroom}"}), 400
+
+    # Handle the uploaded file
+    if "file" not in request.files:
+        return jsonify({"error": "❌ No file received"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "❌ No selected file"}), 400
 
     # ✅ Secure Filename
     filename = secure_filename(f"{mushroom.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
@@ -395,53 +401,69 @@ def upload_image():
         return jsonify({"error": str(e)}), 500
 
 
+
 # ---------------- Capture Image from ESP32-CAM ---------------- #
+# Unified Camera IP Mapping
 CAMERA_IPS = {
-    "chestnut": "http://192.168.100.189",
-    "oyster": "http://192.168.100.190",
-    "shiitake": "http://192.168.100.191",
-    "milky": "http://192.168.100.192",  
-    "reishi": "http://192.168.100.193",  
+    "chestnut": "192.168.100.192",
+    "milky": "192.168.100.190",
+    "reishi": "192.168.100.191",
+    "shiitake": "192.168.100.189",
+    "white_oyster": "192.168.100.193"
 }
 
-@app.route("/capture_image/<mushroom_type>", methods=["POST"])
-@login_required
+#------------ Stream Route-----------
+@app.route('/stream')
+def stream():
+    camera_id = request.args.get('camera_id')
+    if not camera_id or camera_id not in CAMERA_IPS:
+        return "Camera ID not found", 404
+    
+    # Redirect to the ESP32-CAM's local stream
+    esp32_ip = CAMERA_IPS[camera_id]
+    return redirect(f"http://{esp32_ip}/stream_{camera_id}")
+
+# Capture Image Route
+@app.route("/capture_image/<mushroom_type>", methods=["GET"])  # Changed to GET
 def capture_image(mushroom_type):
     if mushroom_type not in CAMERA_IPS:
         return jsonify({"error": "Invalid mushroom type"}), 400
 
     try:
-        esp32_cam_url = f"{CAMERA_IPS[mushroom_type]}/capture"
+        esp32_cam_url = f"http://{CAMERA_IPS[mushroom_type]}/capture"
         response = requests.get(esp32_cam_url, timeout=10)
 
         if response.status_code == 200:
             filename = secure_filename(f"{mushroom_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
             image_path = os.path.join(UPLOADS_DIR, filename)
 
+            # ✅ Ensure Uploads Directory Exists
+            os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+            # Save the captured image
             with open(image_path, "wb") as f:
                 f.write(response.content)
 
+            # Map mushroom types to folder IDs
             folder_map = {
                 "chestnut": CHESTNUT_FOLDER_ID,
-                "oyster": WHITE_OYSTER_FOLDER_ID,
                 "milky": MILKY_FOLDER_ID,
                 "reishi": REISHI_FOLDER_ID,
                 "shiitake": SHIITAKE_FOLDER_ID,
+                "white_oyster": WHITE_OYSTER_FOLDER_ID,
             }
             folder_id = folder_map.get(mushroom_type)
-
             if not folder_id:
                 return jsonify({"error": "❌ Folder ID missing!"}), 500
 
+            # Upload to Google Drive
             upload_status = upload_to_drive(image_path, filename, folder_id)
-
             return jsonify({"message": upload_status}), 200
         else:
             return jsonify({"error": "❌ Failed to capture image"}), 500
+
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"❌ ESP32-CAM Error: {str(e)}"}), 500
-
-
 
 
 
@@ -481,8 +503,8 @@ def send_email():
 
 # ---------------- RUN APP ----------------
 
-if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
-
 # if __name__ == "__main__":
-#     socketio.run(app, host="0.0.0.0", port=5000, debug=False)
+#     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False)

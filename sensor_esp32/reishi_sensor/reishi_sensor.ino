@@ -4,6 +4,8 @@
 #include <ArduinoJson.h>
 #include "DHT.h"
 #include <DFRobot_ENS160.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 
 // Pin definitions
 #define SOIL_MOISTURE_PIN 32  
@@ -25,11 +27,33 @@ DHT dht(DHTPIN, DHTTYPE);
   DFRobot_ENS160_SPI ENS160(&SPI, csPin);
 #endif
 
+// WiFi & Time Setup
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "time.google.com", 28800, 60000);  // PHT (UTC+8)
+
+// Humidity threshold & timing variables
 const float HUMIDITY_THRESHOLD = 80.0;
+bool humidifierOn = false;
+unsigned long humidifierStartTime = 0;
+const unsigned long HUMIDIFIER_EXTRA_TIME = 5 * 60 * 1000;  // 5 minutes
+
+// Fan timing
 unsigned long previousMillis = 0;
 const unsigned long FAN_ON_DURATION = 6 * 60 * 1000;  
 const unsigned long FAN_OFF_DURATION = 1 * 60 * 1000; 
 bool isFanOn = true; 
+
+// Light Relay Timing (6 AM and 7 PM for 10 minutes)
+bool lightRelayOn = false;
+unsigned long lightStartTime = 0;
+const unsigned long LIGHT_ON_DURATION = 10 * 60 * 1000;  // 10 minutes
+
+// Function to check if it's daytime (7 AM - 5 PM PHT)
+bool isDaytime() {
+  timeClient.update();
+  int currentHour = timeClient.getHours();
+  return (currentHour >= 7 && currentHour < 17);
+}
 
 void setup() {
   Serial.begin(115200);
@@ -51,19 +75,19 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi!");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
 
+  timeClient.begin();  // Start time synchronization
   ENS160.begin();
   ENS160.setPWRMode(ENS160_STANDARD_MODE);
-
-  digitalWrite(LIGHT_RELAY_PIN, HIGH);
-  digitalWrite(BLUE_LIGHT_RELAY_PIN, HIGH);
 }
 
 void loop() {
+  timeClient.update();
   unsigned long currentMillis = millis();
+  int currentHour = timeClient.getHours();
+  int currentMinute = timeClient.getMinutes();
 
+  // 🌬️ Fan Control (6 min ON, 1 min OFF)
   if (isFanOn && (currentMillis - previousMillis >= FAN_ON_DURATION)) {
     isFanOn = false;
     digitalWrite(FAN_RELAY_PIN, LOW);
@@ -74,6 +98,20 @@ void loop() {
     previousMillis = currentMillis;
   }
 
+  // 🛠 Light Relay Control (6 AM & 7 PM for 10 min)
+  if ((currentHour == 6 || currentHour == 19) && currentMinute == 0 && !lightRelayOn) {
+    digitalWrite(LIGHT_RELAY_PIN, HIGH);
+    lightRelayOn = true;
+    lightStartTime = currentMillis;
+    Serial.println("🛠 Light Relay ON (Scheduled)");
+  }
+  if (lightRelayOn && (currentMillis - lightStartTime >= LIGHT_ON_DURATION)) {
+    digitalWrite(LIGHT_RELAY_PIN, LOW);
+    lightRelayOn = false;
+    Serial.println("🛡 Light Relay OFF (After 10 min)");
+  }
+
+  // 🌡️ Read sensor values
   float temperature = dht.readTemperature();
   float humidity = dht.readHumidity();
   int soilMoistureRaw = analogRead(SOIL_MOISTURE_PIN);
@@ -81,12 +119,24 @@ void loop() {
   int ldrValue = analogRead(LDR_PIN);
   uint16_t ECO2 = ENS160.getECO2();
 
+  // 💦 Humidifier Control Logic
   if (humidity < HUMIDITY_THRESHOLD) {
     digitalWrite(HUMIDIFIER_RELAY_PIN, HIGH);
-  } else {
+    humidifierOn = true;
+    humidifierStartTime = currentMillis;
+  } else if (humidifierOn && (currentMillis - humidifierStartTime >= HUMIDIFIER_EXTRA_TIME)) {
     digitalWrite(HUMIDIFIER_RELAY_PIN, LOW);
+    humidifierOn = false;
   }
 
+  // 🔵 Blue Light Control (7 AM - 5 PM PHT)
+  if (isDaytime()) {
+    digitalWrite(BLUE_LIGHT_RELAY_PIN, HIGH);
+  } else {
+    digitalWrite(BLUE_LIGHT_RELAY_PIN, LOW);
+  }
+
+  // 📁 Send Data to Server
   if (!isnan(temperature) && !isnan(humidity)) {
     StaticJsonDocument<200> jsonDoc;
     jsonDoc["sensor_type"] = "reishi";
