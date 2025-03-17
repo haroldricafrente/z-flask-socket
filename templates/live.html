@@ -23,16 +23,18 @@
 <div class="live-page">
     <div class="live-container">
         <div class="live-grid">
-            {% for mushroom, ip in {"Chestnut": "192.168.100.189", "Milky": "192.168.100.190", "Reishi": "192.168.100.191", "Shiitake": "192.168.100.192", "White Oyster": "192.168.100.193"}.items() %}
+            {% for mushroom in ["Chestnut", "Milky", "Reishi", "Shiitake", "White Oyster"] %}
             <div class="camera-card">
                 <div class="camera-header">
                     <h2>{{ mushroom }} Camera</h2>
-                    <button class="capture-btn" onclick="captureImage('{{ ip }}', '{{ mushroom.lower() }}')">Capture</button>
+                    <button class="capture-btn" onclick="captureImage('{{ mushroom.lower() }}')">Capture</button>
                 </div>
-                <img id="{{ mushroom.lower().replace(' ', '_') }}-stream" src="http://{{ ip }}/stream_{{ mushroom.lower().replace(' ', '_') }}" alt="{{ mushroom }} Camera Stream" class="camera-stream">
-
+                <img id="{{ mushroom.lower().replace(' ', '_') }}-stream"
+                     src="http://52.64.254.252:5000/stream?camera_id={{ mushroom.lower().replace(' ', '_') }}"
+                     alt="{{ mushroom }} Camera Stream" class="camera-stream">
             </div>
             {% endfor %}
+            
         </div>
     </div>
 </div>
