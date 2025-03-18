@@ -15,6 +15,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 import requests
 from werkzeug.utils import secure_filename
+import logging
 import time
 import cv2
 import psutil 
@@ -28,6 +29,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
+
 
 # Secure Configuration
 app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=30)
@@ -76,6 +78,15 @@ class User(UserMixin):
 def load_user(user_id):
     user = users_collection.find_one({"_id": ObjectId(user_id)})
     return User(str(user["_id"]), user["username"]) if user else None
+
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected!")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print("Client disconnected!")
+
 
 # ---------------- AUTHENTICATION ROUTES ----------------
 
@@ -518,6 +529,8 @@ def send_email():
         flash(f'Error sending email: {str(e)}', 'danger')
 
     return redirect(url_for('support'))
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 # ---------------- RUN APP ----------------
