@@ -431,8 +431,8 @@ def generate_frames(esp32_url):
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
 # Streaming Relay Route
-@app.route('/stream_relay')
-def stream_relay():
+@app.route('/stream')
+def stream():
     camera_id = request.args.get('camera_id')
     if not camera_id or camera_id not in CAMERA_IPS:
         return jsonify({"error": "Camera ID not found"}), 404

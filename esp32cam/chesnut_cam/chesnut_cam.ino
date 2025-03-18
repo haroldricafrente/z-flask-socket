@@ -116,31 +116,50 @@ void checkTimeForCapture() {
 }
 
 // Stream handler
+// Proper MJPEG Stream Handler
 static esp_err_t stream_handler(httpd_req_t *req) {
   camera_fb_t * fb = NULL;
   esp_err_t res = ESP_OK;
-  size_t _jpg_buf_len = 0;
-  uint8_t * _jpg_buf = NULL;
+
+  // Send the proper HTTP header for MJPEG streaming
+  httpd_resp_set_type(req, "multipart/x-mixed-replace; boundary=frame");
+  httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
   while (true) {
+    // Capture a frame from the camera
     fb = esp_camera_fb_get();
     if (!fb) {
       Serial.println("Camera capture failed");
       res = ESP_FAIL;
       break;
-    } else {
-      _jpg_buf_len = fb->len;
-      _jpg_buf = fb->buf;
     }
 
-    res = httpd_resp_send_chunk(req, (const char *)_jpg_buf, _jpg_buf_len);
+    // Send frame boundary
+    res = httpd_resp_sendstr_chunk(req, "--frame\r\n"
+                                         "Content-Type: image/jpeg\r\n\r\n");
+    if (res != ESP_OK) {
+      esp_camera_fb_return(fb);
+      break;
+    }
+
+    // Send the image
+    res = httpd_resp_send_chunk(req, (const char *)fb->buf, fb->len);
     esp_camera_fb_return(fb);
     if (res != ESP_OK) {
       break;
     }
+
+    // Send frame footer
+    res = httpd_resp_sendstr_chunk(req, "\r\n");
+    if (res != ESP_OK) {
+      break;
+    }
+
+    delay(100);  // Small delay to avoid flooding
   }
   return res;
 }
+
 
 // Capture handler
 static esp_err_t capture_handler(httpd_req_t *req) {
