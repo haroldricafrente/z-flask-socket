@@ -10,7 +10,7 @@ function refreshStreams() {
         let streamImg = document.getElementById(`${id}-stream`);
         let timestamp = new Date().getTime();
         // Use EC2 instance for streaming
-        streamImg.src = `http://52.64.254.252:5000/stream?camera_id=${id}&t=${timestamp}`;
+        streamImg.src = `http://52.64.254.252/stream?camera_id=${id}&t=${timestamp}`;
     });
 }
 setInterval(refreshStreams, 5000);
@@ -29,7 +29,7 @@ function showUploadStatus(message, isSuccess) {
 
 // Capture image through the EC2 server
 function captureImage(mushroom) {
-    fetch(`http://52.64.254.252:5000/capture?camera_id=${mushroom}`)
+    fetch(`http://52.64.254.252/capture?camera_id=${mushroom}`)
         .then(response => {
             if (!response.ok) throw new Error(`ESP32 Error: ${response.statusText}`);
             return response.blob();

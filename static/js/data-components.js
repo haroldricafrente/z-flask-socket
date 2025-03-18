@@ -38,10 +38,8 @@ const initializeSocketConnection = () => {
     ? `https://${window.location.hostname}`
     : `http://52.64.254.252`;
 
-    
     const socket = io(socketUrl, { transports: ["websocket", "polling"] });
     
-
     const handleSensorUpdate = (data) => {
         if (!data.sensor_type) return;
     

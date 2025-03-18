@@ -30,7 +30,7 @@
                     <button class="capture-btn" onclick="captureImage('{{ mushroom.lower() }}')">Capture</button>
                 </div>
                 <img id="{{ mushroom.lower().replace(' ', '_') }}-stream"
-                     src="http://52.64.254.252:5000/stream?camera_id={{ mushroom.lower().replace(' ', '_') }}"
+                     src="http://52.64.254.252/stream?camera_id={{ mushroom.lower().replace(' ', '_') }}"
                      alt="{{ mushroom }} Camera Stream" class="camera-stream">
             </div>
             {% endfor %}
