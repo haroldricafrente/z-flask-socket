@@ -39,6 +39,9 @@ const initializeSocketConnection = () => {
     : `http://52.64.254.252`;
 
     const socket = io(socketUrl, { transports: ["websocket", "polling"] });
+    socket.on('connect', () => console.log('✅ WebSocket connected'));
+    socket.on('connect_error', (error) => console.error('❌ WebSocket connection error:', error));
+
     
     const handleSensorUpdate = (data) => {
         if (!data.sensor_type) return;
