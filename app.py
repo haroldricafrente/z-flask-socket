@@ -40,6 +40,10 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
 )
 
+
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger("pymongo").setLevel(logging.WARNING)
+
 # MongoDB Setup
 mongo_uri = os.getenv("MONGO_URI")
 if not mongo_uri:
@@ -531,7 +535,7 @@ def send_email():
 
     return redirect(url_for('support'))
 
-logging.basicConfig(level=logging.DEBUG)
+
 
 
 # ---------------- RUN APP ----------------
