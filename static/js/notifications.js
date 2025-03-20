@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
         Chestnut: "#8B4513",
         Shiitake: "#A52A2A",
         Oyster: "#008080",
+        Milky: "#4B0082",
+        Reishi: "#B22222",
         Default: "#555"
     };
 
@@ -33,6 +35,20 @@ document.addEventListener("DOMContentLoaded", function () {
             soilMoisture: { min: 50, max: 70 },
             lightIntensity: { min: 300, max: 800 },
             ECO2: { max: 800 }
+        },
+        Milky: {
+            temperature: { min: 20, max: 30 },
+            humidity: { min: 85, max: 95 },
+            soilMoisture: { min: 65, max: 85 },
+            lightIntensity: { min: 400, max: 900 },
+            ECO2: { max: 900 }
+        },
+        Reishi: {
+            temperature: { min: 24, max: 30 },
+            humidity: { min: 75, max: 85 },
+            soilMoisture: { min: 50, max: 70 },
+            lightIntensity: { min: 600, max: 1200 },
+            ECO2: { max: 1500 }
         }
     };
 
