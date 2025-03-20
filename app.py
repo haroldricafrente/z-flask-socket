@@ -539,8 +539,6 @@ def send_email():
     return redirect(url_for('support'))
 
 
-
-
 # ---------------- RUN APP ----------------
 
 # if __name__ == "__main__":

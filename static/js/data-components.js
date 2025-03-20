@@ -199,10 +199,10 @@ const initializeDataComponents = () => {
     document.querySelectorAll("canvas").forEach(el => console.log(`✅ Found chart: ${el.id}`));
 };
 
-if (window.location.hostname !== "localhost") {
-    console.log = function () {};
-    console.warn = function () {};
-    console.error = function () {};
-}
+// if (window.location.hostname !== "localhost") {
+//     console.log = function () {};
+//     console.warn = function () {};
+//     console.error = function () {};
+// }
 
 initializeDataComponents();
