@@ -61,49 +61,73 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 🚨 Handle incoming sensor data and generate alerts
-    function handleSensorData(mushroomType, data) {
-        const alerts = [];
-        const mushroomThresholds = thresholds[mushroomType];
+// 🚨 Handle incoming sensor data and generate alerts
+function handleSensorData(mushroomType, data) {
+    const alerts = [];
+    const mushroomThresholds = thresholds[mushroomType];
 
-        if (!mushroomThresholds) {
-            console.warn(`No thresholds found for ${mushroomType}`);
-            return;
-        }
+    console.log(`🚨 Threshold check for ${mushroomType}:`, data);
 
-        for (const [param, value] of Object.entries(data)) {
-            if (mushroomThresholds[param]) {
-                const { min, max } = mushroomThresholds[param];
-                if ((min !== undefined && value < min) || (max !== undefined && value > max)) {
-                    const optimalRange = [
-                        min !== undefined ? min : '-',
-                        max !== undefined ? max : '∞'
-                    ].join(' - ');
+    if (!mushroomThresholds) {
+        console.warn(`No thresholds found for ${mushroomType}`);
+        return;
+    }
 
-                    alerts.push(`${formatParamName(param)}: ${value} (Optimal: ${optimalRange})`);
-                }
+    for (const [param, value] of Object.entries(data)) {
+        if (mushroomThresholds[param]) {
+            const { min, max } = mushroomThresholds[param];
+            if ((min !== undefined && value < min) || (max !== undefined && value > max)) {
+                const optimalRange = [
+                    min !== undefined ? min : '-',
+                    max !== undefined ? max : '∞'
+                ].join(' - ');
+
+                alerts.push(`${formatParamName(param)}: ${value} (Optimal: ${optimalRange})`);
             }
         }
+    }
 
-        if (alerts.length > 0) {
-            notificationCount++;
-            notificationCounter.style.display = "inline-block";
-            notificationCounter.innerText = notificationCount;
+    if (alerts.length > 0) {
+        notificationCount++;
+        notificationCounter.style.display = "inline-block";
+        notificationCounter.innerText = notificationCount;
 
-            // 🌟 Create notification item
-            const li = document.createElement("li");
-            li.textContent = `⚠️ ${mushroomType} Alert: ${alerts.join("; ")}`;
+        // 🌟 Create notification item for in-page display
+        const li = document.createElement("li");
+        li.textContent = `⚠️ ${mushroomType} Alert: ${alerts.join("; ")}`;
 
-            // 🎨 Apply mushroom-specific color
-            const color = mushroomColors[mushroomType] || mushroomColors.Default;
-            li.style.backgroundColor = color;
-            li.style.color = "#fff";
-            li.style.padding = "8px";
-            li.style.borderRadius = "5px";
-            li.style.marginBottom = "5px";
+        // 🎨 Apply mushroom-specific color
+        const color = mushroomColors[mushroomType] || mushroomColors.Default;
+        li.style.backgroundColor = color;
+        li.style.color = "#fff";
+        li.style.padding = "8px";
+        li.style.borderRadius = "5px";
+        li.style.marginBottom = "5px";
 
-            notificationList.appendChild(li);
+        notificationList.appendChild(li);
+
+        // 🔔 Browser notification
+        if (Notification.permission === "granted") {
+            new Notification(`${mushroomType} Alert! ⚠️`, {
+                body: alerts.join("\n"),
+                icon: "http://52.64.254.252/static/icon.png"
+
+            });
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification(`${mushroomType} Alert! ⚠️`, {
+                        body: alerts.join("\n"),
+                        icon: "http://52.64.254.252/static/icon.png"
+                    });
+                }
+            });
+        } else {
+            console.warn("Notifications are blocked. Please enable them for alerts.");
         }
     }
+}
+
 
     // 🌐 Expose the function globally so other scripts can call it
     window.handleSensorData = handleSensorData;
