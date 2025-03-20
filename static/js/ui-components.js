@@ -178,4 +178,4 @@ document.addEventListener('DOMContentLoaded', function () {
         notificationCounter.style.display = 'none';
     });
     
-});
+    });
