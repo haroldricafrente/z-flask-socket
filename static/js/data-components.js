@@ -177,7 +177,9 @@ const updateSensorData = (data, sensorType) => {
         console.log(`🔔 Checking thresholds for ${mushroomType} with data:`, data);
         
         if (mushroomType) {
+            console.log(`🚀 Calling handleSensorData for ${mushroomType} with data:`, data);
             handleSensorData(mushroomType, data);
+            
         } else {
             console.warn(`⚠️ No threshold defined for ${sensorType}`);
         }
