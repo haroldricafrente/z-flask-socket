@@ -871,18 +871,20 @@ input:checked + .slider:before {
 
 
 
-/* notification */
+//* ========== Notification Tab ========== */
 
+/* Bell Button */
 .bell-button {
     border: none;
     padding: 10px;
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.3s ease;
-	position: relative;
-    font-size: 12px; /* Adjust as needed */
+    position: relative;
+    font-size: 12px;
 }
 
+/* Notification Counter */
 #notification-counter {
     position: absolute;
     top: 0;
@@ -890,14 +892,26 @@ input:checked + .slider:before {
     background-color: red;
     color: white;
     border-radius: 50%;
-    font-size: 10px; /* Smaller size */
+    font-size: 10px;
     width: 16px;
     height: 16px;
     text-align: center;
     line-height: 16px;
-    display: none; /* Initially hidden */
+    display: none;
 }
 
+/* Bell Animation */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.bell-button.new-notification {
+    animation: pulse 0.3s ease-out;
+}
+
+/* Notification Tab */
 .notification-tab {
     position: absolute;
     top: 60px;
@@ -912,11 +926,13 @@ input:checked + .slider:before {
     transition: opacity 0.3s ease;
 }
 
+/* Show Notification Tab */
 .notification-tab.show {
     display: block;
     opacity: 1;
 }
 
+/* Notification Header */
 .notification-tab h3 {
     margin: 0;
     font-size: 18px;
@@ -924,32 +940,52 @@ input:checked + .slider:before {
     color: #333;
     padding-bottom: 10px;
     border-bottom: 2px solid #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
+/* Clear All Button */
+.clear-all-link {
+    color: #f44336;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 10px;
+    transition: color 0.2s ease;
+}
+
+.clear-all-link:hover {
+    text-decoration: underline;
+    color: #d32f2f;
+}
+
+/* Notification List */
 .notification-tab ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
+/* Notification Item */
 .notification-tab li {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
+    padding: 10px;
     border-bottom: 1px solid #f4f4f4;
     color: #555;
     font-size: 14px;
+    transition: background-color 0.2s;
 }
 
-.notification-tab li:last-child {
-    border-bottom: none;
-}
-
+/* Hover Effect */
 .notification-tab li:hover {
     background-color: #f4f4f4;
     cursor: pointer;
 }
 
+/* Close Button */
 .notification-tab .close-btn {
     background: none;
     border: none;
@@ -963,39 +999,46 @@ input:checked + .slider:before {
     color: #d9534f;
 }
 
-nav .nav-link .badge {
-    position: absolute;
-    top: -6px; /* Move it closer to the top right of the bell */
-    right: -6px; /* Move it closer to the right edge */
-    width: 16px; /* Smaller width */
-    height: 16px; /* Smaller height */
-    border-radius: 50%; /* Keep it circular */
-    border: 2px solid var(--light);
-    background: var(--red);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--light);
-    font-size: 8px; /* Smaller font size */
-    font-weight: 700;
+/* Color Coding for Mushroom Types */
+.chestnut {
+    color: #d32f2f;
+    background: rgba(211, 47, 47, 0.1);
 }
 
-#notification-tab h3 {
-    display: flex;
-    align-items: center;
-	justify-content: space-between;
+.shiitake {
+    color: #f57c00;
+    background: rgba(245, 124, 0, 0.1);
 }
 
-.clear-all-link {
-    color: #f44336; /* Red color for the link */
-    cursor: pointer;
-    font-size: 12px; /* Smaller font size */
-    margin-left: 10px; /* Add some spacing between the title and the link */
+.oyster {
+    color: #388e3c;
+    background: rgba(56, 142, 60, 0.1);
 }
 
-.clear-all-link:hover {
-    text-decoration: underline; /* Underline on hover */
+.enoki {
+    color: #1976d2;
+    background: rgba(25, 118, 210, 0.1);
 }
+
+.unknown {
+    color: #757575;
+    background: rgba(117, 117, 117, 0.1);
+}
+
+/* Improved Scrollbar (Optional) */
+.notification-tab ul::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-tab ul::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.notification-tab ul::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
 
 
 

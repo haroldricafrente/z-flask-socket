@@ -173,9 +173,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.createNotification = createNotification;
 
-    document.getElementById("clear-notifications").addEventListener("click", function() {
+    document.getElementById("clear-notifications").addEventListener("click", function () {
         notificationList.innerHTML = '';
+        notificationCount = 0;  // Reset the count
         notificationCounter.style.display = 'none';
     });
+    
     
     });
