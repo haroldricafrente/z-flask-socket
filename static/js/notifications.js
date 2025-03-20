@@ -110,7 +110,7 @@ function handleSensorData(mushroomType, data) {
         if (Notification.permission === "granted") {
             new Notification(`${mushroomType} Alert! ⚠️`, {
                 body: alerts.join("\n"),
-                icon: "http://52.64.254.252/static/icon.png"
+                icon: "http://52.64.254.252/static/mushkin_logo.png"
 
             });
         } else if (Notification.permission !== "denied") {
@@ -118,7 +118,7 @@ function handleSensorData(mushroomType, data) {
                 if (permission === "granted") {
                     new Notification(`${mushroomType} Alert! ⚠️`, {
                         body: alerts.join("\n"),
-                        icon: "http://52.64.254.252/static/icon.png"
+                        icon: "http://52.64.254.252/static/mushkin_logo.png"
                     });
                 }
             });
