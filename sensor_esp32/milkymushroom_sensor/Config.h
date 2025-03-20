@@ -7,11 +7,11 @@
 // #define WIFI_SSID "BawalAngHappy"
 // #define WIFI_PASSWORD "0987654321"
 
-// #define WIFI_SSID "OT7"
-// #define WIFI_PASSWORD "dIk0aLAm"
+#define WIFI_SSID "OT7"
+#define WIFI_PASSWORD "dIk0aLAm"
 
-#define WIFI_SSID "Mushkin"
-#define WIFI_PASSWORD "mushkin09"
+// #define WIFI_SSID "Mushkin"
+// #define WIFI_PASSWORD "mushkin09"
 
 // #define WIFI_SSID "Mushkin123"
 // #define WIFI_PASSWORD "123456789"

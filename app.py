@@ -53,6 +53,9 @@ client = MongoClient(mongo_uri)
 db = client['sensor_data']
 users_collection = db["users"]
 
+
+
+
 # Initialize Extensions
 bcrypt = Bcrypt(app)
 

@@ -9,13 +9,23 @@
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 #include "esp_http_server.h"
+#include <WireGuard-ESP32.h>  // WireGuard Library
 
 // Network credentials
 const char* ssid = "OT7";
 const char* password = "dIk0aLAm";
 
-// EC2 Server Details
-const char* serverAddress = "http://52.64.254.252/upload";
+// WireGuard Credentials
+WireGuard wg;
+const char* private_key = "<ESP32_PRIVATE_KEY>";
+const char* public_key = "1wFoU7HhPIjKe2xLEXu6h4kngC8QjWApe7FNkEqLJCY=";
+const char* endpoint_address = "52.64.254.252";
+const int endpoint_port = 51820;
+IPAddress local_ip(10, 0, 0, 2);
+IPAddress peer_ip(10, 0, 0, 1);
+
+// EC2 Server Details (Use VPN IP)
+const char* serverAddress = "http://10.0.0.1:5000/upload";
 
 // Define Mushroom Type
 #define MUSHROOM_TYPE "chestnut" // Options: "chestnut", "milky", "reishi", "shiitake", "white_oyster"
@@ -85,7 +95,6 @@ void uploadImageToEC2(uint8_t *imgBuf, size_t imgLen) {
   http.end();
 }
 
-
 // Capture Image Function
 void captureAndUploadImage() {
   camera_fb_t * fb = esp_camera_fb_get();
@@ -116,17 +125,14 @@ void checkTimeForCapture() {
 }
 
 // Stream handler
-// Proper MJPEG Stream Handler
 static esp_err_t stream_handler(httpd_req_t *req) {
   camera_fb_t * fb = NULL;
   esp_err_t res = ESP_OK;
 
-  // Send the proper HTTP header for MJPEG streaming
   httpd_resp_set_type(req, "multipart/x-mixed-replace; boundary=frame");
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
   while (true) {
-    // Capture a frame from the camera
     fb = esp_camera_fb_get();
     if (!fb) {
       Serial.println("Camera capture failed");
@@ -134,32 +140,23 @@ static esp_err_t stream_handler(httpd_req_t *req) {
       break;
     }
 
-    // Send frame boundary
-    res = httpd_resp_sendstr_chunk(req, "--frame\r\n"
-                                         "Content-Type: image/jpeg\r\n\r\n");
+    res = httpd_resp_sendstr_chunk(req, "--frame\r\nContent-Type: image/jpeg\r\n\r\n");
     if (res != ESP_OK) {
       esp_camera_fb_return(fb);
       break;
     }
 
-    // Send the image
     res = httpd_resp_send_chunk(req, (const char *)fb->buf, fb->len);
     esp_camera_fb_return(fb);
-    if (res != ESP_OK) {
-      break;
-    }
+    if (res != ESP_OK) break;
 
-    // Send frame footer
     res = httpd_resp_sendstr_chunk(req, "\r\n");
-    if (res != ESP_OK) {
-      break;
-    }
+    if (res != ESP_OK) break;
 
-    delay(100);  // Small delay to avoid flooding
+    delay(100);
   }
   return res;
 }
-
 
 // Capture handler
 static esp_err_t capture_handler(httpd_req_t *req) {
@@ -170,10 +167,8 @@ static esp_err_t capture_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  // Upload to EC2
   uploadImageToEC2(fb->buf, fb->len);
 
-  // Send the image back as response
   httpd_resp_set_type(req, "image/jpeg");
   httpd_resp_send(req, (const char *)fb->buf, fb->len);
   esp_camera_fb_return(fb);
@@ -186,7 +181,6 @@ void startCameraServer() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.server_port = 80;
 
-  // Dynamic stream endpoint (e.g., /stream_chestnut)
   char stream_uri[32];
   snprintf(stream_uri, sizeof(stream_uri), "/stream_%s", MUSHROOM_TYPE);
   httpd_uri_t stream_uri_handler = {
@@ -196,7 +190,6 @@ void startCameraServer() {
       .user_ctx  = NULL
   };
 
-  // Dynamic capture endpoint (e.g., /capture_chestnut)
   char capture_uri[32];
   snprintf(capture_uri, sizeof(capture_uri), "/capture_%s", MUSHROOM_TYPE);
   httpd_uri_t capture_uri_handler = {
@@ -219,7 +212,6 @@ void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(false);
 
-  // Wi-Fi connection
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -227,10 +219,14 @@ void setup() {
   }
   Serial.println("\nWiFi connected");
 
-  // Sync time
-  syncTime();
+  // Initialize WireGuard VPN
+  if (wg.begin(private_key, public_key, endpoint_address, endpoint_port, local_ip, peer_ip)) {
+    Serial.println("WireGuard VPN connected!");
+  } else {
+    Serial.println("WireGuard VPN failed to connect.");
+  }
 
-  // Start streaming web server
+  syncTime();
   startCameraServer();
 
   Serial.print("Camera Stream Ready! Go to: http://");

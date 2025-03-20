@@ -32,11 +32,10 @@ const assignUpdateChart = (sensorType, updateFunction) => {
 
 // Establish the Socket.IO connection
 const initializeSocketConnection = () => {
-    // const socket = io();
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
     const socketUrl = window.location.hostname === "iotmushkin.homes"
-    ? `https://${window.location.hostname}`
-    : `http://52.64.254.252`;
+        ? `${protocol}://iotmushkin.homes`
+        : `${protocol}://52.64.254.252`;
 
     const socket = io(socketUrl, { transports: ["websocket", "polling"] });
     socket.on('connect', () => console.log('✅ WebSocket connected'));
