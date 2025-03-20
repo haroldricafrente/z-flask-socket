@@ -164,6 +164,22 @@ const updateSensorData = (data, sensorType) => {
     else if (sensorType === "shiitake") updateFunction = updateShiitakeChart;
     else if (sensorType === "white-oyster") updateFunction = updateWhiteOysterChart;
 
+        // 🌟 Trigger notifications for abnormal values
+        const mushroomTypeMap = {
+            "milky-mushroom": "Milky",
+            "chestnut": "Chestnut",
+            "reishi": "Reishi",
+            "shiitake": "Shiitake",
+            "white-oyster": "Oyster"
+        };
+        const mushroomType = mushroomTypeMap[sensorType];
+        if (mushroomType) {
+            handleSensorData(mushroomType, data);
+        } else {
+            console.warn(`⚠️ No threshold defined for ${sensorType}`);
+        }
+    
+
     if (typeof updateFunction === "function") {
         console.log(`📊 Updating chart for ${sensorType} at ${timestamp}`);
         updateFunction(timestamp, data.temperature, data.humidity, data.soilMoisture, data.lightIntensity, data.ECO2);
