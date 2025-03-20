@@ -165,7 +165,15 @@ const updateSensorData = (data, sensorType) => {
     else if (sensorType === "white-oyster") updateFunction = updateWhiteOysterChart;
 
         // 🌟 Trigger notifications for abnormal values
-        const mushroomType = mushroomTypeMap[sensorType] || sensorType;
+        const mushroomType = {
+            'chestnut': 'Chestnut',
+            'shiitake': 'Shiitake',
+            'white-oyster': 'Oyster',
+            'milky-mushroom': 'Milky',
+            'milk_mushroom': 'Milky',
+            'reishi': 'Reishi'
+        }[sensorType] || sensorType;
+        
         console.log(`🔔 Checking thresholds for ${mushroomType} with data:`, data);
         
         if (mushroomType) {
