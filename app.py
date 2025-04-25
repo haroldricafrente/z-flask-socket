@@ -185,50 +185,50 @@ def mushroom_dashboard(mushroom_type):
     mushrooms = {
         "chestnut": {
             "optimal_conditions": {
-                "temperature": "18-22°C",
-                "humidity": "85-95%",
+                "temperature": "16-24°C",
+                "humidity": "80-85%",
                 "soilMoisture": "60-80%",
-                "lightIntensity": "500-1000 lux",
+                "lightIntensity": "500-1200 lux",
                 "ECO2": "Below 1000 ppm",
             },
             "folder_id": os.getenv("OUTPUT_CHESTNUT_FOLDER_ID"),
         },
         "milky_mushroom": {
             "optimal_conditions": {
-                "temperature": "24-30°C",
-                "humidity": "80-90%",
+                "temperature": "28-33°C",
+                "humidity": "75-80%",
                 "soilMoisture": "60-80%",
-                "lightIntensity": "500-1000 lux",
-                "ECO2": "Below 1000 ppm",
+                "lightIntensity": "500-1500 lux",
+                "ECO2": "Below 1500 ppm",
             },
             "folder_id": os.getenv("OUTPUT_MILKY_MUSHROOM_FOLDER_ID"),
         },
         "reishi": {
             "optimal_conditions": {
-                "temperature": "24-28°C",
-                "humidity": "85-95%",
+                "temperature": "16-27°C",
+                "humidity": "75-80%",
                 "soilMoisture": "60-80%",
                 "lightIntensity": "1000-1500 lux",
-                "ECO2": "Below 800 ppm",
+                "ECO2": "Below 1500 ppm",
             },
             "folder_id": os.getenv("OUTPUT_REISHI_FOLDER_ID"),
         },
         "shiitake": {
             "optimal_conditions": {
-                "temperature": "10-20°C",
-                "humidity": "85-95%",
+                "temperature": "20-25°C",
+                "humidity": "80-90%",
                 "soilMoisture": "50-70%",
-                "lightIntensity": "500-1000 lux",
-                "ECO2": "Below 1200 ppm",
+                "lightIntensity": "500-1200 lux",
+                "ECO2": "Below 1000 ppm",
             },
             "folder_id": os.getenv("OUTPUT_SHIITAKE_FOLDER_ID"),
         },
         "white_oyster": {
             "optimal_conditions": {
-                "temperature": "18-25°C",
-                "humidity": "85-95%",
+                "temperature": "25-27°C",
+                "humidity": "75-80%",
                 "soilMoisture": "60-80%",
-                "lightIntensity": "500-1000 lux",
+                "lightIntensity": "500-1500 lux",
                 "ECO2": "Below 1000 ppm",
             },
             "folder_id": os.getenv("OUTPUT_WHITE_OYSTER_FOLDER_ID"),
@@ -257,17 +257,13 @@ def live():
 
 # ---------------- SENSOR DATA ENDPOINT ----------------
 
-API_KEY = os.getenv("ESP32_API_KEY")
-if not API_KEY:
-    raise ValueError("ESP32_API_KEY is not set in the .env file!")
-
 @app.route("/data", methods=["POST"])
 def receive_data():
     api_key = request.headers.get("X-API-KEY")
     if not api_key:
         return jsonify({"error": "Missing API key"}), 400
 
-    if api_key != API_KEY:
+    if api_key != api_key:
         return jsonify({"error": "Unauthorized"}), 401
 
     try:
@@ -279,6 +275,21 @@ def receive_data():
 
         data["timestamp"] = datetime.now(timezone.utc)
 
+        # Handle actuator data separately
+        if "actuator" in data:
+            actuator_collection = db["actuator_data"]
+            actuator_collection.insert_one(data)
+
+            # Emit actuator update through WebSocket
+            socketio.emit("actuator_update", {
+                "actuator": data.get("actuator"),
+                "state": data.get("state"),
+                "timestamp": data["timestamp"].isoformat() + "Z"
+            })
+            print(f"Actuator data saved: {data}")
+            return jsonify({"status": "Actuator data saved"}), 200
+
+        # Handle sensor data as usual
         collection_name = f"{data.get('sensor_type', 'unknown')}_sensor_readings"
         collection = db[collection_name]
         collection.insert_one(data)
@@ -293,11 +304,11 @@ def receive_data():
             "timestamp": data["timestamp"].isoformat() + "Z"
         })
         
-        
         return jsonify({"status": "success"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     
     
 # ---------------- Google Drive Setup ---------------- #
@@ -541,8 +552,8 @@ def send_email():
 
 # ---------------- RUN APP ----------------
 
-# if __name__ == "__main__":
-#     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
-
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+
+# if __name__ == "__main__":
+#     socketio.run(app, host="0.0.0.0", port=5000, debug=False)

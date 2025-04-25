@@ -16,41 +16,37 @@ document.addEventListener("DOMContentLoaded", function () {
     // 📊 Define optimal thresholds per mushroom type
     const thresholds = {
         Chestnut: {
-            temperature: { min: 18, max: 22 },
-            humidity: { min: 85, max: 95 },
-            soilMoisture: { min: 60, max: 80 },
-            lightIntensity: { min: 500, max: 1000 },
+            temperature: { min: 16, max: 24 },
+            humidity: { min: 80, max: 85 },
+            lightIntensity: { min: 500, max: 1200 },
             ECO2: { max: 1000 }
         },
         Shiitake: {
-            temperature: { min: 12, max: 20 },
+            temperature: { min: 20, max: 25 },
             humidity: { min: 80, max: 90 },
-            soilMoisture: { min: 55, max: 75 },
-            lightIntensity: { min: 400, max: 900 },
-            ECO2: { max: 1200 }
+            lightIntensity: { min: 500, max: 1200 },
+            ECO2: { max: 1000 }
         },
-        Oyster: {
-            temperature: { min: 15, max: 25 },
-            humidity: { min: 70, max: 90 },
-            soilMoisture: { min: 50, max: 70 },
-            lightIntensity: { min: 300, max: 800 },
-            ECO2: { max: 800 }
+        WhiteOyster: {
+            temperature: { min: 25, max: 27 },
+            humidity: { min: 75, max: 80 },
+            lightIntensity: { min: 500, max: 1500 },
+            ECO2: { max: 1000 }
         },
-        Milky: {
-            temperature: { min: 20, max: 30 },
-            humidity: { min: 85, max: 95 },
-            soilMoisture: { min: 65, max: 85 },
-            lightIntensity: { min: 400, max: 900 },
-            ECO2: { max: 900 }
+        MilkyMushroom: {
+            temperature: { min: 28, max: 33 },
+            humidity: { min: 75, max: 80 },
+            lightIntensity: { min: 500, max: 1500 },
+            ECO2: { max: 1500 }
         },
         Reishi: {
-            temperature: { min: 24, max: 30 },
-            humidity: { min: 75, max: 85 },
-            soilMoisture: { min: 50, max: 70 },
-            lightIntensity: { min: 600, max: 1200 },
+            temperature: { min: 16, max: 27 },
+            humidity: { min: 75, max: 80 },
+            lightIntensity: { min: 1000, max: 1500 },
             ECO2: { max: 1500 }
         }
     };
+    
 
     // 🏷️ Format parameter names for display (capitalize words)
     function formatParamName(param) {

@@ -23,6 +23,13 @@
 <div class="live-page">
     <div class="live-container">
         <div class="live-grid">
+            {% set ports = {
+                'Chestnut': 8081,
+                'Milky': 8082,
+                'Reishi': 8083,
+                'Shiitake': 8084,
+                'White Oyster': 8085
+            } %}
             {% for mushroom in ["Chestnut", "Milky", "Reishi", "Shiitake", "White Oyster"] %}
             <div class="camera-card">
                 <div class="camera-header">
@@ -30,7 +37,7 @@
                     <button class="capture-btn" onclick="captureImage('{{ mushroom.lower() }}')">Capture</button>
                 </div>
                 <img id="{{ mushroom.lower().replace(' ', '_') }}-stream"
-                     src="http://52.64.254.252/stream?camera_id={{ mushroom.lower().replace(' ', '_') }}"
+                     src="http://52.64.254.252:{{ ports[mushroom] }}/stream"
                      alt="{{ mushroom }} Camera Stream" class="camera-stream">
             </div>
             {% endfor %}
