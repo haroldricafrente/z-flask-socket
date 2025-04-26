@@ -23,24 +23,57 @@
 <div class="live-page">
     <div class="live-container">
         <div class="live-grid">
-            {% set ports = {
-                'Chestnut': 8081,
-                'Milky': 8082,
-                'Reishi': 8083,
-                'Shiitake': 8084,
-                'White Oyster': 8085
-            } %}
-            {% for mushroom in ["Chestnut", "Milky", "Reishi", "Shiitake", "White Oyster"] %}
             <div class="camera-card">
                 <div class="camera-header">
-                    <h2>{{ mushroom }} Camera</h2>
-                    <button class="capture-btn" onclick="captureImage('{{ mushroom.lower() }}')">Capture</button>
+                    <h2>Chestnut Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('chestnut')">Capture</button>
                 </div>
-                <img id="{{ mushroom.lower().replace(' ', '_') }}-stream"
-                     src="http://52.64.254.252:{{ ports[mushroom] }}/stream"
-                     alt="{{ mushroom }} Camera Stream" class="camera-stream">
+                <img id="chestnut-stream"
+                     src="http://192.168.100.191:81/stream"
+                     alt="Chestnut Camera Stream" class="camera-stream">
             </div>
-            {% endfor %}
+            
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Milky Camera</h2>
+                    <button class="capture-btn" onclick="captureAndUploadImage('milky')">Capture</button>
+                </div>
+                <img id="milky-stream"
+                     src="http://192.168.100.193:81/stream"
+                     alt="Milky Camera Stream" class="camera-stream">
+            </div>
+            
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Reishi Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('reishi')">Capture</button>
+                </div>
+                <img id="reishi-stream"
+                     src="http://192.168.100.194:81/stream"
+                     alt="Reishi Camera Stream" class="camera-stream">
+            </div>
+            
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>Shiitake Camera</h2>
+                    <button class="capture-btn" onclick="captureAndUploadImage('shiitake')">Capture</button>
+                </div>
+                <img id="shiitake-stream"
+                     src="http://192.168.100.195:81/stream"
+                     alt="Shiitake Camera Stream" class="camera-stream">
+            </div>
+            
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h2>White Oyster Camera</h2>
+                    <button class="capture-btn" onclick="captureImage('white_oyster')">Capture</button>
+                </div>
+                <img id="white_oyster-stream"
+                     src="http://192.168.100.196:81/stream"
+                     alt="White Oyster Camera Stream" class="camera-stream">
+            </div>
+            
+            
         </div>
     </div>
 </div>
@@ -54,6 +87,7 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/live.js') }}"></script>
+
 <!-- CSS Styling -->
 <style>
     .camera-header {

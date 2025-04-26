@@ -53,9 +53,6 @@ client = MongoClient(mongo_uri)
 db = client['sensor_data']
 users_collection = db["users"]
 
-
-
-
 # Initialize Extensions
 bcrypt = Bcrypt(app)
 
@@ -308,16 +305,21 @@ def receive_data():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
-    
-    
+
+
+
+
+
+
 # ---------------- Google Drive Setup ---------------- #
-SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH")
+SERVICE_ACCOUNT_FILE = 'D:/z-flask-socket/credentials_mushkin2.json'
 
 drive_service = None
 if SERVICE_ACCOUNT_FILE:
     try:
-        creds = Credentials.from_service_account_file(
+        creds = service_account.Credentials.from_service_account_file(
             SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/drive.file"]
         )
         drive_service = build("drive", "v3", credentials=creds)
@@ -353,8 +355,8 @@ def release_file_and_delete(file_path, max_retries=5, wait_time=3):
     print(f"❌ Final delete attempt failed: {file_path}")
 
 # ---------------- Upload Function ---------------- #
-def upload_to_drive(file_path, file_name, folder_id):
-    """Uploads a file to Google Drive and deletes it afterward."""
+def upload_to_drive(file_path, file_name, folder_id, delete_after_upload=True):
+    """Uploads a file to Google Drive. Optionally deletes it afterward."""
     if not drive_service:
         return "❌ Google Drive API not initialized. Check credentials."
     if not folder_id:
@@ -371,18 +373,20 @@ def upload_to_drive(file_path, file_name, folder_id):
 
         # 🔴 Close media upload stream to release file handle
         del media  
-        time.sleep(5)  # Wait before deletion
+        time.sleep(5)  # Give OS time
 
-        # ✅ Ensure file deletion
-        release_file_and_delete(file_path)
+        # ✅ Delete file ONLY IF requested
+        if delete_after_upload:
+            release_file_and_delete(file_path)
 
         return f"✅ Uploaded Successfully: {file_id}"
     except Exception as e:
         print(f"❌ Upload Failed: {repr(e)}")
         return f"❌ Upload Failed: {str(e)}"
 
+
 # -------- image upalod route ----------
-@app.route("/upload", methods=["POST"])
+@app.route("/upload_image", methods=["POST"])
 def upload_image():
     # Get Mushroom-Type from headers
     mushroom_type = request.headers.get('Mushroom-Type')
@@ -405,11 +409,11 @@ def upload_image():
         return jsonify({"error": f"❌ No folder found for {mushroom}"}), 400
 
     # Handle the uploaded file
-    if "file" not in request.files:
+    if "image" not in request.files:
         return jsonify({"error": "❌ No file received"}), 400
 
-    file = request.files["file"]
-    if file.filename == "":
+    image = request.files["image"]
+    if image.filename == "":
         return jsonify({"error": "❌ No selected file"}), 400
 
     # ✅ Secure Filename
@@ -418,7 +422,7 @@ def upload_image():
 
     try:
         with open(file_path, "wb") as f:
-            f.write(file.read())
+            f.write(image.read())
 
         print(f"✅ File saved: {file_path}")
         time.sleep(5)  # 🔴 Give OS time to release file
@@ -433,11 +437,12 @@ def upload_image():
 
 
 
+
 # ---------------- Capture Image from ESP32-CAM ---------------- #
 # Unified Camera IP Mapping
 CAMERA_IPS = {
     "chestnut": "192.168.100.192",
-    "milky": "192.168.100.190",
+    "milky": "192.168.100.193",
     "reishi": "192.168.100.191",
     "shiitake": "192.168.100.189",
     "white_oyster": "192.168.100.193"
